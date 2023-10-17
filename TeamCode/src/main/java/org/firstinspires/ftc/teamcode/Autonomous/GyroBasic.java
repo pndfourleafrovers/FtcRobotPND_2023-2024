@@ -14,14 +14,14 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.Objects.Odometry;
 
-@Disabled
+//@Disabled
 @Autonomous(name="GyroBasic", group="Autonomous")
 public class GyroBasic extends LinearOpMode {
     private DcMotor FrontLeft;
     private DcMotor FrontRight;
     private DcMotor RearLeft;
     private DcMotor RearRight;
-    private IMU imu = null;      // Control/Expansion Hub IMU
+    private IMU imu;      // Control/Expansion Hub IMU
 
     private double headingError = 0;
 

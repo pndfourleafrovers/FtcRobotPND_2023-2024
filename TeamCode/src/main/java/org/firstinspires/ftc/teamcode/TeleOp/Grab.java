@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Mixed;
+package org.firstinspires.ftc.teamcode.TeleOp;
 
 
 
@@ -10,8 +10,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
-@TeleOp(name="Grab", group="Linear OpMode")
-@Disabled
+@TeleOp(name="Grab", group="TeleOp")
+//@Disabled
 public class Grab extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
 
@@ -20,9 +20,9 @@ public class Grab extends LinearOpMode {
     @Override
     public void runOpMode() {
 
-        Grabber = hardwareMap.get(Servo.class, "Servo1");
+        Grabber = hardwareMap.get(Servo.class, "pmmfloor");
 
-
+    waitForStart();
 
     while (opModeIsActive()){
 
@@ -30,7 +30,7 @@ public class Grab extends LinearOpMode {
             Grabber.setPosition(1);
         // Servos operate 0-180 degrees by a 0-1 metric. This sets servo position to 180 degrees.
         else if(gamepad1.b)
-            Grabber.setPosition(0);
+            Grabber.setPosition(0.0);
     }
     telemetry.addData("Servo Position", Grabber.getPosition());
     telemetry.update();
