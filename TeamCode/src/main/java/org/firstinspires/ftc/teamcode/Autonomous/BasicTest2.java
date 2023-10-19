@@ -19,7 +19,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.Objects.Odometry;
 
-//@Disabled
+@Disabled
 @Autonomous(name="BasicT2", group="Autonomous")
 public class BasicTest2 extends LinearOpMode{
 

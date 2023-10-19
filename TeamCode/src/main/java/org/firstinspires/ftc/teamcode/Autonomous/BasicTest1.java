@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.teamcode.Objects.Odometry;
 
-//@Disabled
+@Disabled
 @Autonomous(name="BasicT", group="Autonomous")
 public class BasicTest1 extends LinearOpMode {
     private DcMotorEx FrontLeft;

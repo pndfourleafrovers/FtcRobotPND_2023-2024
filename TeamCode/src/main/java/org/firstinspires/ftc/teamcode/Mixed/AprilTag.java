@@ -67,7 +67,7 @@ import java.util.List;
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list.
  */
 @Autonomous(name = "AprilTag Detection", group = "Autonomous")
-@Disabled
+//@Disabled
 public class AprilTag extends LinearOpMode {
 
     private static final boolean USE_WEBCAM = true;  // true for webcam, false for phone camera
@@ -83,6 +83,7 @@ public class AprilTag extends LinearOpMode {
     private VisionPortal visionPortal;
 
     @Override
+
     public void runOpMode() {
 
         initAprilTag();

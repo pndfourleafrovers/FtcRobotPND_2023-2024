@@ -1,23 +1,15 @@
-package org.firstinspires.ftc.teamcode.Autonomous.RedBackQ4;
+package org.firstinspires.ftc.teamcode.Autonomous;
 
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.ColorSensor;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Gyroscope;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
@@ -26,8 +18,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.Mixed.AprilAuto;
 import org.firstinspires.ftc.teamcode.Objects.Odometry;
-
-import org.firstinspires.ftc.teamcode.Mixed.AprilAuto;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
@@ -36,8 +26,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Disabled
-@Autonomous(name="RedCenterRight", group="Autonomous")
-public class RedCenterRight extends LinearOpMode{
+@Autonomous(name="BasicT4", group="Autonomous")
+public class BasicTest4 extends LinearOpMode{
     private DcMotor FrontLeft;
     private DcMotor FrontRight;
     private DcMotor RearLeft;
@@ -126,7 +116,7 @@ public class RedCenterRight extends LinearOpMode{
          * To Do:  EDIT these two lines to match YOUR mounting configuration.
          */
         RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.UP;
-        RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD;
+        RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
         RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoDirection, usbDirection);
 
         imu = hardwareMap.get(IMU.class, "imu");
@@ -165,22 +155,104 @@ public class RedCenterRight extends LinearOpMode{
         //   ambient();?
         driveStraight(DRIVE_SPEED, 36.0, 0.0);    // In inches
         turnToHeading(TURN_SPEED, 0.0);               // In Degrees
-        holdHeading(TURN_SPEED, 0.0, 0.25);
+        holdHeading(TURN_SPEED, 0.0, 2.0);
+        while (opModeIsActive() && (FrontLeft.isBusy() && FrontRight.isBusy() && RearLeft.isBusy() && RearRight.isBusy())){
+        }
 //Have prop detection code here
 
-        ambient();
-        prop();
+
+            int leftAmbient = leftColor.alpha();
+            int rightAmbient = rightColor.alpha();
+
+            if (leftAmbient > 75) { // Adjust the value based on your observations and testing
+                Position = 1;
+            } else if (rightAmbient > 120) { // Adjust the value based on your observations and testing
+                Position = 2;
+            } else if (leftAmbient < 75 && rightAmbient < 120) {
+                Position = 3;
+            }
+            sleep(2000);
+
+
+//Make holdTime a variable
+            switch (Position) {
+                case 1:
+                    driveStraight(DRIVE_SPEED, -20, 0.0);    // In inches
+                    turnToHeading(TURN_SPEED, 30);               // In Degrees
+                    holdHeading(TURN_SPEED, 30, 1);
+
+                    driveStraight(DRIVE_SPEED, 10, 30);    // In inches
+                    turnToHeading(TURN_SPEED, 30);               // In Degrees
+                    holdHeading(TURN_SPEED, 0, 1);
+                    //Grab code
+                    driveStraight(DRIVE_SPEED, -10, 30);    // In inches
+                    turnToHeading(TURN_SPEED, 0);               // In Degrees
+                    holdHeading(TURN_SPEED, 0, 1);
+
+                    driveStraight(DRIVE_SPEED, 40, 0);    // In inches
+                    turnToHeading(TURN_SPEED, 0);               // In Degrees
+                    holdHeading(TURN_SPEED, 0, 1);
+                    break;
+                case 2:
+                    driveStraight(DRIVE_SPEED, -20, 0.0);    // In inches
+                    turnToHeading(TURN_SPEED, -30);               // In Degrees
+                    holdHeading(TURN_SPEED, -30, 0.25);
+
+                    driveStraight(DRIVE_SPEED, 10, -30);    // In inches
+                    turnToHeading(TURN_SPEED, -30);               // In Degrees
+                    holdHeading(TURN_SPEED, -30, 0.25);
+                    // Grab code
+                    driveStraight(DRIVE_SPEED, -10, -30);    // In inches
+                    turnToHeading(TURN_SPEED, 0);               // In Degrees
+                    holdHeading(TURN_SPEED, 0, 0.25);
+
+                    driveStraight(DRIVE_SPEED, 40, 0);    // In inches
+                    turnToHeading(TURN_SPEED, 0);               // In Degrees
+                    holdHeading(TURN_SPEED, 0, 0.25);
+                    break;
+                case 3:
+                    driveStraight(DRIVE_SPEED, -20, 0.0);    // In inches
+                    turnToHeading(TURN_SPEED, 10);               // In Degrees
+                    holdHeading(TURN_SPEED, 10, 0.25);
+
+                    driveStraight(DRIVE_SPEED, 30, 10);    // In inches
+                    turnToHeading(TURN_SPEED, 10);               // In Degrees
+                    holdHeading(TURN_SPEED, 10, 0.25);
+                    //Grab code
+                    driveStraight(DRIVE_SPEED, -30, 30);    // In inches
+                    turnToHeading(TURN_SPEED, 90);               // In Degrees
+                    holdHeading(TURN_SPEED, 90, 0.25);
+
+                    driveStraight(DRIVE_SPEED, 25, 90);    // In inches
+                    turnToHeading(TURN_SPEED, 0);               // In Degrees
+                    holdHeading(TURN_SPEED, 0, 0.25);
+
+                    driveStraight(DRIVE_SPEED, 40, 0);    // In inches
+                    turnToHeading(TURN_SPEED, -90);               // In Degrees
+                    holdHeading(TURN_SPEED, -90, 0.25);
+
+                    driveStraight(DRIVE_SPEED, 25, -90);    // In inches
+                    turnToHeading(TURN_SPEED, -90);               // In Degrees
+                    holdHeading(TURN_SPEED, -90, 0.25);
+                    break;
+                //By the end of each sequence, each movement is in same proximate position somewhere above the middle spike.
+            }
+        while (opModeIsActive() && (FrontLeft.isBusy() && FrontRight.isBusy() && RearLeft.isBusy() && RearRight.isBusy())){
+        }
 
 //Place pixel on prop spot, grab code
 
-        driveStraight(DRIVE_SPEED, 48.0, -90.0);    // In inches
+        driveStraight(DRIVE_SPEED, 48.0, 0.0);    // In inches
         turnToHeading(TURN_SPEED, -90.0);               // In Degrees
-        holdHeading(TURN_SPEED, -90, 0.25);
+        holdHeading(TURN_SPEED, -90, 1);
+        while (opModeIsActive() && (FrontLeft.isBusy() && FrontRight.isBusy() && RearLeft.isBusy() && RearRight.isBusy())){
+        }
 
-        driveStraight(DRIVE_SPEED, 18.0, -180.0);    // In inches
-        turnToHeading(TURN_SPEED, -90.0);               // In Degrees
-        holdHeading(TURN_SPEED, -90, 0.25);
-
+        driveStraight(DRIVE_SPEED, 18.0, -90.0);    // In inches
+        turnToHeading(TURN_SPEED, -180);               // In Degrees
+        holdHeading(TURN_SPEED, -180, 1);
+        while (opModeIsActive() && (FrontLeft.isBusy() && FrontRight.isBusy() && RearLeft.isBusy() && RearRight.isBusy())){
+        }
 
 
 
@@ -249,10 +321,11 @@ public class RedCenterRight extends LinearOpMode{
 //Correct position angle
         turnToHeading(TURN_SPEED, -90.0);               // In Degrees
         holdHeading(TURN_SPEED, -90, 0.25);
-
+        while (opModeIsActive() && (FrontLeft.isBusy() && FrontRight.isBusy() && RearLeft.isBusy() && RearRight.isBusy())){
+        }
 //Place pixel on correct spot
 // Go to park
-        redRight();
+        redLeft();
 
     }
 
@@ -578,6 +651,7 @@ public class RedCenterRight extends LinearOpMode{
         } else if (leftAmbient < 75 && rightAmbient < 120) {
             Position = 3;
         }
+        sleep(2000);
     }
     public void prop (){
 //Make holdTime a variable
@@ -585,19 +659,19 @@ public class RedCenterRight extends LinearOpMode{
             case 1:
                 driveStraight(DRIVE_SPEED, -20, 0.0);    // In inches
                 turnToHeading(TURN_SPEED, 30);               // In Degrees
-                holdHeading(TURN_SPEED, 30, 0.25);
+                holdHeading(TURN_SPEED, 30, 1);
 
                 driveStraight(DRIVE_SPEED, 10, 30);    // In inches
                 turnToHeading(TURN_SPEED, 30);               // In Degrees
-                holdHeading(TURN_SPEED, 0, 0.25);
+                holdHeading(TURN_SPEED, 0, 1);
                 //Grab code
                 driveStraight(DRIVE_SPEED, -10, 30);    // In inches
                 turnToHeading(TURN_SPEED, 0);               // In Degrees
-                holdHeading(TURN_SPEED, 0, 0.25);
+                holdHeading(TURN_SPEED, 0, 1);
 
                 driveStraight(DRIVE_SPEED, 40, 0);    // In inches
                 turnToHeading(TURN_SPEED, 0);               // In Degrees
-                holdHeading(TURN_SPEED, 0, 0.25);
+                holdHeading(TURN_SPEED, 0, 1);
                 break;
             case 2:
                 driveStraight(DRIVE_SPEED, -20, 0.0);    // In inches
@@ -644,7 +718,7 @@ public class RedCenterRight extends LinearOpMode{
             //By the end of each sequence, each movement is in same proximate position somewhere above the middle spike.
         }
     }
-    public void redRight (){
+    public void redLeft () {
         driveStraight(DRIVE_SPEED, 18.0, -180.0);    // In inches
         turnToHeading(TURN_SPEED, -90.0);               // In Degrees
         holdHeading(TURN_SPEED, -90, 0.25);
@@ -656,5 +730,7 @@ public class RedCenterRight extends LinearOpMode{
         driveStraight(DRIVE_SPEED, 18.0, -180.0);    // In inches
         turnToHeading(TURN_SPEED, -90.0);               // In Degrees
         holdHeading(TURN_SPEED, -90, 0.25);
+
     }
 }
+

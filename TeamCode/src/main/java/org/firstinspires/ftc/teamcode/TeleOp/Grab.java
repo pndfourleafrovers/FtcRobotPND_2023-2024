@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 
 @TeleOp(name="Grab", group="TeleOp")
-//@Disabled
+@Disabled
 public class Grab extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
 
