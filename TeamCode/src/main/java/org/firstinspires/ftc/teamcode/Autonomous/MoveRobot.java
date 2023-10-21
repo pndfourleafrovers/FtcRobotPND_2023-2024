@@ -43,34 +43,51 @@ public class MoveRobot extends LinearOpMode {
         }
 
         waitForStart();
-
+        turnToHeading(0);
         driveForward(24, 0.5);
-        lookForProp=true;
-        driveForward(6,05);
-        lookForProp=false;
+        lookForProp = true;
+        driveForward(6,0.5);
+        lookForProp = false;
 
         if (objectDetectedLeft) {
             turnToHeading(90);
             driveForward(5,0.5);
-            telemetry.addData("Object Detected", "Left Side");
-            telemetry.update();
+
+            driveBackward(5,0.8);
+            turnToHeading(0);
+
+            driveForward(25,0.8);
+            turnToHeading(-90);
+
+            driveForward(65,1);
+            turnToHeading(-135);
         } else if (objectDetectedRight) {
             turnToHeading(-90);
             driveForward(5,0.5);
-            telemetry.addData("Object Detected", "Right Side");
-            telemetry.update();
-            driveForward(5,-0.5);
-            turnToHeading(90);
-            driveForward(10,0.5);
-            turnToHeading(90);
-            driveForward(10,0.5);
 
+            driveBackward(5,.8);
+            turnToHeading(0);
 
+            driveForward(25,.8);
+            turnToHeading(-90);
+
+            driveForward(65,1);
+            turnToHeading(-135);
         } else {
             // Continue forward if no objects were detected
             driveForward(5, 0.5);
-            telemetry.addData("Object Detected", "Front");
-            telemetry.update();
+
+            driveBackward(5,.8);
+            turnToHeading(90);
+
+            driveForward(20,.8);
+            turnToHeading(0);
+
+            driveForward(25,.8);
+            turnToHeading(-90);
+
+            driveForward(85,1);
+            turnToHeading(-135);
         }
 
 
@@ -101,7 +118,9 @@ public class MoveRobot extends LinearOpMode {
         leftBackDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightBackDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
-
+    public void driveBackward(double distance, double power) {
+        driveForward(-distance, power);
+    }
     public void driveForward(double distance, double power) {
         int ticksToMove;
         double ticksPerInch = (520 / (2.25*1.5/2 * Math.PI)); //520 encoder ticks per one circumference of the wheel
@@ -144,7 +163,9 @@ public class MoveRobot extends LinearOpMode {
 
 
             }
+
         }
+
 
         // Stop all the motors
         leftFrontDrive.setPower(0);
@@ -165,23 +186,28 @@ public class MoveRobot extends LinearOpMode {
     }
 
     public void turnToHeading(int targetHeading) {
-        int close =2;
+        double turnKp = 0.01; // This is a proportionality constant. You may need to tune this value.
         while (Math.abs(getHeading() - targetHeading) > 1) { // Allow for a small error margin
-            // Calculate wheel powers.
-            double leftFrontPower    =  -targetHeading;
-            double rightFrontPower   =  +targetHeading;
-            double leftBackPower     =  -targetHeading;
-            double rightBackPower    =  +targetHeading;
 
-            // Normalize wheel powers to be less than 1.0
+            double error = targetHeading - getHeading(); // Calculate the error
+
+            // Calculate wheel powers based on error
+            double turnPower = error * turnKp;
+
+            double leftFrontPower    =  -turnPower;
+            double rightFrontPower   =  +turnPower;
+            double leftBackPower     =  -turnPower;
+            double rightBackPower    =  +turnPower;
+
+            // Ensure wheel powers do not exceed 1.0
             double max = Math.max(Math.abs(leftFrontPower), Math.abs(rightFrontPower));
             max = Math.max(max, Math.abs(leftBackPower));
             max = Math.max(max, Math.abs(rightBackPower));
             if (max > 1.0) {
-                leftFrontPower /= max*close;
-                rightFrontPower /= max*close;
-                leftBackPower /= max*close;
-                rightBackPower /= max*close;
+                leftFrontPower /= max;
+                rightFrontPower /= max;
+                leftBackPower /= max;
+                rightBackPower /= max;
             }
 
             // Send powers to the wheels.
