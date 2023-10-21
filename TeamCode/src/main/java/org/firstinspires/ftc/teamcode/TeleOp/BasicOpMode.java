@@ -69,10 +69,10 @@ public class BasicOpMode extends LinearOpMode {
 
     // Declare OpMode members for each of the 4 motors.
     private ElapsedTime runtime = new ElapsedTime();
-    private DcMotor leftFrontDrive = null;
-    private DcMotor leftBackDrive = null;
-    private DcMotor rightFrontDrive = null;
-    private DcMotor rightBackDrive = null;
+    private DcMotor leftFrontDrive;
+    private DcMotor leftBackDrive;
+    private DcMotor rightFrontDrive;
+    private DcMotor rightBackDrive;
 
     @Override
     public void runOpMode() {
@@ -164,4 +164,5 @@ public class BasicOpMode extends LinearOpMode {
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
             telemetry.update();
         }
-    }}
+    }
+}

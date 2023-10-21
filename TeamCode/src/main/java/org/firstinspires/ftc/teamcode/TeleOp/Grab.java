@@ -26,10 +26,10 @@ public class Grab extends LinearOpMode {
 
     while (opModeIsActive()){
 
-        if(gamepad1.a)
+        if(gamepad2.a)
             Grabber.setPosition(1);
         // Servos operate 0-180 degrees by a 0-1 metric. This sets servo position to 180 degrees.
-        else if(gamepad1.b)
+        else if(gamepad2.b)
             Grabber.setPosition(0.0);
     }
     telemetry.addData("Servo Position", Grabber.getPosition());
