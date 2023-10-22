@@ -90,11 +90,11 @@ import java.util.concurrent.TimeUnit;
                 telemetry.update();
 
                 // Apply desired axes motions to the drivetrain.
-                moveRobot(drive, strafe, turn);
+                moveAprilRobot(drive, strafe, turn);
                 sleep(10);
             }
         }
-        public void moveRobot(double x, double y, double yaw) {
+        public void moveAprilRobot(double x, double y, double yaw) {
             // Calculate wheel powers.
             double leftFrontPower    =  x -y -yaw;
             double rightFrontPower   =  x +y +yaw;

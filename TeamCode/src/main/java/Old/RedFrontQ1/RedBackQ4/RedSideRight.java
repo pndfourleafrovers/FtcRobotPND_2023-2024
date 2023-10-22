@@ -1,7 +1,8 @@
-package org.firstinspires.ftc.teamcode.Autonomous.RedFrontQ1;
+package Old.RedFrontQ1.RedBackQ4;
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -25,8 +26,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 //@Disabled
-@Autonomous(name="RedUpRight", group="Autonomous")
-public class RedUpRight extends LinearOpMode{
+@Autonomous(name="RedSideRight", group="Autonomous")
+public class RedSideRight extends LinearOpMode{
     private DcMotor FrontLeft;
     private DcMotor FrontRight;
     private DcMotor RearLeft;
@@ -158,17 +159,15 @@ public class RedUpRight extends LinearOpMode{
 //Have prop detection code here
 
         ambient();
-        propUpFront();
+        propSide();
 
 //Place pixel on prop spot, grab code
 
-//Move to point
+        driveStraight(DRIVE_SPEED, 48.0, 0.0);    // In inches
+        turnToHeading(TURN_SPEED, 0.0);               // In Degrees
+        holdHeading(TURN_SPEED, 0, 0.25);
 
-        driveStraight(DRIVE_SPEED, 48.0, -90.0);    // In inches
-        turnToHeading(TURN_SPEED, -90.0);               // In Degrees
-        holdHeading(TURN_SPEED, -90, 0.25);
-
-        driveStraight(DRIVE_SPEED, 18.0, -180.0);    // In inches
+        driveStraight(DRIVE_SPEED, 18.0, 0.0);    // In inches
         turnToHeading(TURN_SPEED, -90.0);               // In Degrees
         holdHeading(TURN_SPEED, -90, 0.25);
 
@@ -180,7 +179,7 @@ public class RedUpRight extends LinearOpMode{
         {
             targetFound = false;
             desiredTag  = null;
-            DESIRED_TAG_ID = Position; // = whatever we decided to name the variable at the beginning
+            DESIRED_TAG_ID = Position + 3; // = whatever we decided to name the variable at the beginning
             // Step through the list of detected tags and look for a matching tag
             List<AprilTagDetection> currentDetections = aprilTag.getDetections();
             for (AprilTagDetection detection : currentDetections) {
@@ -570,69 +569,22 @@ public class RedUpRight extends LinearOpMode{
             Position = 3;
         }
     }
-    public void propUpFront() {
-//Make holdTime a variable
-        switch (Position) {
-            case 1:
-                driveStraight(DRIVE_SPEED, -20, 0.0);    // In inches
-                turnToHeading(TURN_SPEED, 30);               // In Degrees
-                holdHeading(TURN_SPEED, 30, 0.25);
+    public void propSide() {
+        driveStraight(DRIVE_SPEED, -20, 0.0);    // In inches
+        turnToHeading(TURN_SPEED, 30);               // In Degrees
+        holdHeading(TURN_SPEED, 30, 0.25);
 
-                driveStraight(DRIVE_SPEED, 10, 30);    // In inches
-                turnToHeading(TURN_SPEED, 30);               // In Degrees
-                holdHeading(TURN_SPEED, 0, 0.25);
-                //Grab code
-                driveStraight(DRIVE_SPEED, -10, 30);    // In inches
-                turnToHeading(TURN_SPEED, -90);               // In Degrees
-                holdHeading(TURN_SPEED, -90, 0.25);
+        driveStraight(DRIVE_SPEED, 10, 30);    // In inches
+        turnToHeading(TURN_SPEED, 30);               // In Degrees
+        holdHeading(TURN_SPEED, 0, 0.25);
+        //Grab code
+        driveStraight(DRIVE_SPEED, -10, 30);    // In inches
+        turnToHeading(TURN_SPEED, -180);               // In Degrees
+        holdHeading(TURN_SPEED, -180, 0.25);
 
-                driveStraight(DRIVE_SPEED, 20, -90);    // In inches
-                turnToHeading(TURN_SPEED, -90);               // In Degrees
-                holdHeading(TURN_SPEED, -90, 0.25);
-                break;
-            case 2:
-                driveStraight(DRIVE_SPEED, -20, 0.0);    // In inches
-                turnToHeading(TURN_SPEED, -30);               // In Degrees
-                holdHeading(TURN_SPEED, -30, 0.25);
-
-                driveStraight(DRIVE_SPEED, 10, -30);    // In inches
-                turnToHeading(TURN_SPEED, -30);               // In Degrees
-                holdHeading(TURN_SPEED, -30, 0.25);
-                // Grab code
-                driveStraight(DRIVE_SPEED, -10, -30);    // In inches
-                turnToHeading(TURN_SPEED, 0);               // In Degrees
-                holdHeading(TURN_SPEED, 0, 0.25);
-
-                driveStraight(DRIVE_SPEED, 30, 0);    // In inches
-                turnToHeading(TURN_SPEED, -90);               // In Degrees
-                holdHeading(TURN_SPEED, -90, 0.25);
-
-                driveStraight(DRIVE_SPEED, 20, -90);    // In inches
-                turnToHeading(TURN_SPEED, -180);               // In Degrees
-                holdHeading(TURN_SPEED, -180, 0.25);
-
-                driveStraight(DRIVE_SPEED, 30, -180);    // In inches
-                turnToHeading(TURN_SPEED, -90);               // In Degrees
-                holdHeading(TURN_SPEED, -90, 0.25);
-                break;
-            case 3:
-                driveStraight(DRIVE_SPEED, -20, 0.0);    // In inches
-                turnToHeading(TURN_SPEED, 10);               // In Degrees
-                holdHeading(TURN_SPEED, 10, 0.25);
-
-                driveStraight(DRIVE_SPEED, 30, 10);    // In inches
-                turnToHeading(TURN_SPEED, 10);               // In Degrees
-                holdHeading(TURN_SPEED, 10, 0.25);
-                //Grab code
-                driveStraight(DRIVE_SPEED, -30, 30);    // In inches
-                turnToHeading(TURN_SPEED, -90);               // In Degrees
-                holdHeading(TURN_SPEED, -90, 0.25);
-
-                driveStraight(DRIVE_SPEED, 20, -90);    // In inches
-                turnToHeading(TURN_SPEED, -90);               // In Degrees
-                holdHeading(TURN_SPEED, -90, 0.25);
-                break;
-        }
+        driveStraight(DRIVE_SPEED, 40, -190);    // In inches
+        turnToHeading(TURN_SPEED, 0);               // In Degrees
+        holdHeading(TURN_SPEED, 0, 0.25);
     }
     public void redRight (){
         driveStraight(DRIVE_SPEED, 18.0, -180.0);    // In inches

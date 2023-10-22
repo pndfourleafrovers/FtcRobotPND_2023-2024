@@ -25,19 +25,18 @@ public class pmmA_Auto extends LinearOpMode {
         pmmA = hardwareMap.get(Servo.class, "pmmA");
 
         arm = hardwareMap.get(DcMotor.class, "arm");
+        arm.setDirection(DcMotor.Direction.FORWARD);
+
+        arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //Set at beginning
+        arm.setPower(0.5);
+        arm.setTargetPosition(TICKS_PER_DEGREE*7);
         waitForStart();
 
 
 
         while (opModeIsActive()){
-
-            arm.setDirection(DcMotor.Direction.FORWARD);
-
-            arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            //Set at beginning
-            arm.setPower(0.5);
-            arm.setTargetPosition(TICKS_PER_DEGREE*5);
             //Set when placing pixel
             arm.setTargetPosition(TICKS_PER_DEGREE*207);
             //Release pixel

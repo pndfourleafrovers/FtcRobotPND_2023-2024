@@ -14,7 +14,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.Objects.Odometry;
 
-//@Disabled
+@Disabled
 @Autonomous(name="GyroBasic", group="Autonomous")
 public class GyroBasic extends LinearOpMode {
     private DcMotor FrontLeft;

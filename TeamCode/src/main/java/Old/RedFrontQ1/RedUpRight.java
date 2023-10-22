@@ -1,8 +1,7 @@
-package org.firstinspires.ftc.teamcode.Autonomous.RedBackQ4;
+package Old.RedFrontQ1;
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -16,6 +15,8 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.Exposur
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
+import org.firstinspires.ftc.teamcode.Mixed.AprilAuto;
+import org.firstinspires.ftc.teamcode.Objects.Odometry;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
@@ -23,9 +24,9 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-@Disabled
-@Autonomous(name="RedCenterLeft", group="Autonomous")
-public class RedCenterLeft extends LinearOpMode {
+//@Disabled
+@Autonomous(name="RedUpRight", group="Autonomous")
+public class RedUpRight extends LinearOpMode{
     private DcMotor FrontLeft;
     private DcMotor FrontRight;
     private DcMotor RearLeft;
@@ -38,14 +39,14 @@ public class RedCenterLeft extends LinearOpMode {
     private double driveSpeed = 0;
 
     //not sure if most of these variables are needed. Might get rid of them to see at some point.
-    private double FrontLeftSpeed = 0;
-    private double FrontRightSpeed = 0;
-    private double RearLeftSpeed = 0;
-    private double RearRightSpeed = 0;
-    private int FrontLeftTarget = 0;
-    private int FrontRightTarget = 0;
-    private int RearLeftTarget = 0;
-    private int RearRightTarget = 0;
+    private double  FrontLeftSpeed     = 0;
+    private double  FrontRightSpeed    = 0;
+    private double  RearLeftSpeed     = 0;
+    private double  RearRightSpeed    = 0;
+    private int     FrontLeftTarget    = 0;
+    private int     FrontRightTarget   = 0;
+    private int     RearLeftTarget    = 0;
+    private int     RearRightTarget   = 0;
 
     static final double TICKS_PER_MOTOR_REV = 520.0;   // eg: GoBILDA 312 RPM Yellow Jacket
     static final double DRIVE_GEAR_REDUCTION = 1.5;     // No External Gearing.
@@ -62,7 +63,7 @@ public class RedCenterLeft extends LinearOpMode {
     // Decrease these numbers if the heading does not settle on the correct value (eg: very agile robot with omni wheels)
     static final double P_TURN_GAIN = 0.02;     // Larger is more responsive, but also less stable
     static final double P_DRIVE_GAIN = 0.03;     // Larger is more responsive, but also less stable
-    private double turnSpeed = 0;
+    private double  turnSpeed     = 0;
     private ColorSensor leftColor, rightColor;
 
     final double DESIRED_DISTANCE = 12.0; //  this is how close the camera should get to the target (inches)
@@ -70,30 +71,28 @@ public class RedCenterLeft extends LinearOpMode {
     //  Set the GAIN constants to control the relationship between the measured position error, and how much power is
     //  applied to the drive motors to correct the error.
     //  Drive = Error * Gain    Make these values smaller for smoother control, or larger for a more aggressive response.
-    final double SPEED_GAIN = 0.02;   //  Forward Speed Control "Gain". eg: Ramp up to 50% power at a 25 inch error.   (0.50 / 25.0)
-    final double STRAFE_GAIN = 0.015;   //  Strafe Speed Control "Gain".  eg: Ramp up to 25% power at a 25 degree Yaw error.   (0.25 / 25.0)
-    final double TURN_GAIN = 0.01;   //  Turn Control "Gain".  eg: Ramp up to 25% power at a 25 degree error. (0.25 / 25.0)
+    final double SPEED_GAIN  =  0.02  ;   //  Forward Speed Control "Gain". eg: Ramp up to 50% power at a 25 inch error.   (0.50 / 25.0)
+    final double STRAFE_GAIN =  0.015 ;   //  Strafe Speed Control "Gain".  eg: Ramp up to 25% power at a 25 degree Yaw error.   (0.25 / 25.0)
+    final double TURN_GAIN   =  0.01  ;   //  Turn Control "Gain".  eg: Ramp up to 25% power at a 25 degree error. (0.25 / 25.0)
 
     final double MAX_AUTO_SPEED = 0.5;   //  Clip the approach speed to this max value (adjust for your robot)
-    final double MAX_AUTO_STRAFE = 0.5;   //  Clip the approach speed to this max value (adjust for your robot)
-    final double MAX_AUTO_TURN = 0.3;   //  Clip the turn speed to this max value (adjust for your robot)
+    final double MAX_AUTO_STRAFE= 0.5;   //  Clip the approach speed to this max value (adjust for your robot)
+    final double MAX_AUTO_TURN  = 0.3;   //  Clip the turn speed to this max value (adjust for your robot)
     private static final boolean USE_WEBCAM = true;  // Set true to use a webcam, or false for a phone camera
 
     private int DESIRED_TAG_ID;    // Choose the tag you want to approach or set to -1 for ANY tag.
     private VisionPortal visionPortal;               // Used to manage the video source.
     private AprilTagProcessor aprilTag;              // Used for managing the AprilTag detection process.
     private AprilTagDetection desiredTag = null;     // Used to hold the data for a detected AprilTag
-    boolean lookforprop = false;
     int Position; //(+3 if red)
-
     @Override
     public void runOpMode() {
 
 
-        boolean targetFound = false;    // Set to true when an AprilTag target is detected
-        double drive = 0;        // Desired forward power/speed (-1 to +1)
-        double strafe = 0;        // Desired strafe power/speed (-1 to +1)
-        double turn = 0;        // Desired turning power/speed (-1 to +1)
+        boolean targetFound     = false;    // Set to true when an AprilTag target is detected
+        double  drive           = 0;        // Desired forward power/speed (-1 to +1)
+        double  strafe          = 0;        // Desired strafe power/speed (-1 to +1)
+        double  turn            = 0;        // Desired turning power/speed (-1 to +1)
 
         initAprilTag();
 
@@ -116,7 +115,7 @@ public class RedCenterLeft extends LinearOpMode {
          * To Do:  EDIT these two lines to match YOUR mounting configuration.
          */
         RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.UP;
-        RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
+        RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD;
         RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoDirection, usbDirection);
 
         imu = hardwareMap.get(IMU.class, "imu");
@@ -153,36 +152,35 @@ public class RedCenterLeft extends LinearOpMode {
         //          holdHeading() is used after turns to let the heading stabilize
         //          Add a sleep(2000) after any step to keep the telemetry data visible for review
         //   ambient();?
-        while (opModeIsActive()) {
-            driveStraight(DRIVE_SPEED, 24.0, 0.0);    // In inches
-            turnToHeading(TURN_SPEED, 0.0);               // In Degrees
-            holdHeading(TURN_SPEED, 0.0, 1);
-            lookforprop = true;
-            driveStraight(DRIVE_SPEED, 15.0, 0.0);    // In inches
-            turnToHeading(TURN_SPEED, 0.0);               // In Degrees
-            holdHeading(TURN_SPEED, 0.0, 1);
+        driveStraight(DRIVE_SPEED, 36.0, 0.0);    // In inches
+        turnToHeading(TURN_SPEED, 0.0);               // In Degrees
+        holdHeading(TURN_SPEED, 0.0, 0.25);
 //Have prop detection code here
-            lookforprop = false;
-            prop();
 
+        ambient();
+        propUpFront();
 
 //Place pixel on prop spot, grab code
 
-            driveStraight(DRIVE_SPEED, 48.0, 0.0);    // In inches
-            turnToHeading(TURN_SPEED, -90.0);               // In Degrees
-            holdHeading(TURN_SPEED, -90, 1);
+//Move to point
 
-            driveStraight(DRIVE_SPEED, 18.0, -90.0);    // In inches
-            turnToHeading(TURN_SPEED, -180);               // In Degrees
-            holdHeading(TURN_SPEED, -180, 1);
+        driveStraight(DRIVE_SPEED, 48.0, -90.0);    // In inches
+        turnToHeading(TURN_SPEED, -90.0);               // In Degrees
+        holdHeading(TURN_SPEED, -90, 0.25);
+
+        driveStraight(DRIVE_SPEED, 18.0, -180.0);    // In inches
+        turnToHeading(TURN_SPEED, -90.0);               // In Degrees
+        holdHeading(TURN_SPEED, -90, 0.25);
+
+
 
 
 //April tag detection and drive to.
-
-
+        while (opModeIsActive())
+        {
             targetFound = false;
-            desiredTag = null;
-            DESIRED_TAG_ID = Position + 3; // = whatever we decided to name the variable at the beginning
+            desiredTag  = null;
+            DESIRED_TAG_ID = Position; // = whatever we decided to name the variable at the beginning
             // Step through the list of detected tags and look for a matching tag
             List<AprilTagDetection> currentDetections = aprilTag.getDetections();
             for (AprilTagDetection detection : currentDetections) {
@@ -206,28 +204,29 @@ public class RedCenterLeft extends LinearOpMode {
 
             // Tell the driver what we see, and what to do.
             if (targetFound) {
+                telemetry.addData("\n>","HOLD Left-Bumper to Drive to Target\n");
                 telemetry.addData("Found", "ID %d (%s)", desiredTag.id, desiredTag.metadata.name);
-                telemetry.addData("Range", "%5.1f inches", desiredTag.ftcPose.range);
-                telemetry.addData("Bearing", "%3.0f degrees", desiredTag.ftcPose.bearing);
-                telemetry.addData("Yaw", "%3.0f degrees", desiredTag.ftcPose.yaw);
+                telemetry.addData("Range",  "%5.1f inches", desiredTag.ftcPose.range);
+                telemetry.addData("Bearing","%3.0f degrees", desiredTag.ftcPose.bearing);
+                telemetry.addData("Yaw","%3.0f degrees", desiredTag.ftcPose.yaw);
             } else {
-                telemetry.addData("\n>", "No valid target\n");
+                telemetry.addData("\n>","No valid target\n");
             }
 
             // If we have found the desired target, Drive to target Automatically .
             if (targetFound) {
 
                 // Determine heading, range and Yaw (tag image rotation) error so we can use them to control the robot automatically.
-                double rangeError = (desiredTag.ftcPose.range - DESIRED_DISTANCE);
-                double headingError = desiredTag.ftcPose.bearing;
-                double yawError = desiredTag.ftcPose.yaw;
+                double  rangeError      = (desiredTag.ftcPose.range - DESIRED_DISTANCE);
+                double  headingError    = desiredTag.ftcPose.bearing;
+                double  yawError        = desiredTag.ftcPose.yaw;
 
                 // Use the speed and turn "gains" to calculate how we want the robot to move.
-                drive = Range.clip(rangeError * SPEED_GAIN, -MAX_AUTO_SPEED, MAX_AUTO_SPEED);
-                turn = Range.clip(headingError * TURN_GAIN, -MAX_AUTO_TURN, MAX_AUTO_TURN);
+                drive  = Range.clip(rangeError * SPEED_GAIN, -MAX_AUTO_SPEED, MAX_AUTO_SPEED);
+                turn   = Range.clip(headingError * TURN_GAIN, -MAX_AUTO_TURN, MAX_AUTO_TURN) ;
                 strafe = Range.clip(-yawError * STRAFE_GAIN, -MAX_AUTO_STRAFE, MAX_AUTO_STRAFE);
 
-                telemetry.addData("Auto", "Drive %5.2f, Strafe %5.2f, Turn %5.2f ", drive, strafe, turn);
+                telemetry.addData("Auto","Drive %5.2f, Strafe %5.2f, Turn %5.2f ", drive, strafe, turn);
             }
             telemetry.update();
 
@@ -244,15 +243,9 @@ public class RedCenterLeft extends LinearOpMode {
 
 //Place pixel on correct spot
 // Go to park
-        redLeft();
-        }
+        redRight();
 
-
-
-
-
-
-
+    }
 
 
     public void driveStraight(double maxDriveSpeed,
@@ -288,9 +281,7 @@ public class RedCenterLeft extends LinearOpMode {
             // keep looping while we are still active, and BOTH motors are running.
             while (opModeIsActive() &&
                     (FrontLeft.isBusy() && FrontRight.isBusy() && RearLeft.isBusy() && RearRight.isBusy())) {
-                if (lookforprop == true){
-                    ambient();
-                }
+
                 // Determine required steering to keep on heading
                 turnSpeed = getSteeringCorrection(heading, P_DRIVE_GAIN);
 
@@ -567,7 +558,7 @@ public class RedCenterLeft extends LinearOpMode {
             sleep(20);
         }
     }
-    public int ambient () {
+    public void ambient () {
         int leftAmbient = leftColor.alpha();
         int rightAmbient = rightColor.alpha();
 
@@ -578,27 +569,26 @@ public class RedCenterLeft extends LinearOpMode {
         } else if (leftAmbient < 75 && rightAmbient < 120) {
             Position = 3;
         }
-        return Position;
     }
-    public int prop (){
+    public void propUpFront() {
 //Make holdTime a variable
         switch (Position) {
             case 1:
                 driveStraight(DRIVE_SPEED, -20, 0.0);    // In inches
                 turnToHeading(TURN_SPEED, 30);               // In Degrees
-                holdHeading(TURN_SPEED, 30, 1);
+                holdHeading(TURN_SPEED, 30, 0.25);
 
                 driveStraight(DRIVE_SPEED, 10, 30);    // In inches
                 turnToHeading(TURN_SPEED, 30);               // In Degrees
-                holdHeading(TURN_SPEED, 0, 1);
+                holdHeading(TURN_SPEED, 0, 0.25);
                 //Grab code
                 driveStraight(DRIVE_SPEED, -10, 30);    // In inches
-                turnToHeading(TURN_SPEED, 0);               // In Degrees
-                holdHeading(TURN_SPEED, 0, 1);
+                turnToHeading(TURN_SPEED, -90);               // In Degrees
+                holdHeading(TURN_SPEED, -90, 0.25);
 
-                driveStraight(DRIVE_SPEED, 40, 0);    // In inches
-                turnToHeading(TURN_SPEED, 0);               // In Degrees
-                holdHeading(TURN_SPEED, 0, 1);
+                driveStraight(DRIVE_SPEED, 20, -90);    // In inches
+                turnToHeading(TURN_SPEED, -90);               // In Degrees
+                holdHeading(TURN_SPEED, -90, 0.25);
                 break;
             case 2:
                 driveStraight(DRIVE_SPEED, -20, 0.0);    // In inches
@@ -613,9 +603,17 @@ public class RedCenterLeft extends LinearOpMode {
                 turnToHeading(TURN_SPEED, 0);               // In Degrees
                 holdHeading(TURN_SPEED, 0, 0.25);
 
-                driveStraight(DRIVE_SPEED, 40, 0);    // In inches
-                turnToHeading(TURN_SPEED, 0);               // In Degrees
-                holdHeading(TURN_SPEED, 0, 0.25);
+                driveStraight(DRIVE_SPEED, 30, 0);    // In inches
+                turnToHeading(TURN_SPEED, -90);               // In Degrees
+                holdHeading(TURN_SPEED, -90, 0.25);
+
+                driveStraight(DRIVE_SPEED, 20, -90);    // In inches
+                turnToHeading(TURN_SPEED, -180);               // In Degrees
+                holdHeading(TURN_SPEED, -180, 0.25);
+
+                driveStraight(DRIVE_SPEED, 30, -180);    // In inches
+                turnToHeading(TURN_SPEED, -90);               // In Degrees
+                holdHeading(TURN_SPEED, -90, 0.25);
                 break;
             case 3:
                 driveStraight(DRIVE_SPEED, -20, 0.0);    // In inches
@@ -627,37 +625,26 @@ public class RedCenterLeft extends LinearOpMode {
                 holdHeading(TURN_SPEED, 10, 0.25);
                 //Grab code
                 driveStraight(DRIVE_SPEED, -30, 30);    // In inches
-                turnToHeading(TURN_SPEED, 90);               // In Degrees
-                holdHeading(TURN_SPEED, 90, 0.25);
-
-                driveStraight(DRIVE_SPEED, 25, 90);    // In inches
-                turnToHeading(TURN_SPEED, 0);               // In Degrees
-                holdHeading(TURN_SPEED, 0, 0.25);
-
-                driveStraight(DRIVE_SPEED, 40, 0);    // In inches
                 turnToHeading(TURN_SPEED, -90);               // In Degrees
                 holdHeading(TURN_SPEED, -90, 0.25);
 
-                driveStraight(DRIVE_SPEED, 25, -90);    // In inches
+                driveStraight(DRIVE_SPEED, 20, -90);    // In inches
                 turnToHeading(TURN_SPEED, -90);               // In Degrees
                 holdHeading(TURN_SPEED, -90, 0.25);
                 break;
-            //By the end of each sequence, each movement is in same proximate position somewhere above the middle spike.
         }
-        return Position;
     }
-    public void redLeft () {
-        driveStraight(DRIVE_SPEED, -18.0, -90.0);    // In inches
-        turnToHeading(TURN_SPEED, 0.0);               // In Degrees
-        holdHeading(TURN_SPEED, 0.0, 0.25);
-
-        driveStraight(DRIVE_SPEED, 30, 0.0);    // In inches
+    public void redRight (){
+        driveStraight(DRIVE_SPEED, 18.0, -180.0);    // In inches
         turnToHeading(TURN_SPEED, -90.0);               // In Degrees
         holdHeading(TURN_SPEED, -90, 0.25);
 
-        driveStraight(DRIVE_SPEED, 5, -90.0);    // In inches
+        driveStraight(DRIVE_SPEED, 18.0, -180.0);    // In inches
+        turnToHeading(TURN_SPEED, -90.0);               // In Degrees
+        holdHeading(TURN_SPEED, -90, 0.25);
+
+        driveStraight(DRIVE_SPEED, 18.0, -180.0);    // In inches
         turnToHeading(TURN_SPEED, -90.0);               // In Degrees
         holdHeading(TURN_SPEED, -90, 0.25);
     }
 }
-

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Autonomous.RedFrontQ1;
+package Old.RedFrontQ1;
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Disabled
-@Autonomous(name="RedDownRight", group="Autonomous")
-public class RedDownRight extends LinearOpMode{
+@Autonomous(name="RedUpLeft", group="Autonomous")
+public class RedUpLeft extends LinearOpMode{
     private DcMotor FrontLeft;
     private DcMotor FrontRight;
     private DcMotor RearLeft;
@@ -159,7 +159,7 @@ public class RedDownRight extends LinearOpMode{
 //Have prop detection code here
 
         ambient();
-        propDownFront();
+        propUpFront();
 
 //Place pixel on prop spot, grab code
 
@@ -244,7 +244,7 @@ public class RedDownRight extends LinearOpMode{
 
 //Place pixel on correct spot
 // Go to park
-        redRight();
+        redLeft();
 
     }
 
@@ -571,7 +571,7 @@ public class RedDownRight extends LinearOpMode{
             Position = 3;
         }
     }
-    public void propDownFront() {
+    public void propUpFront() {
 //Make holdTime a variable
         switch (Position) {
             case 1:
@@ -601,18 +601,18 @@ public class RedDownRight extends LinearOpMode{
                 holdHeading(TURN_SPEED, -30, 0.25);
                 // Grab code
                 driveStraight(DRIVE_SPEED, -10, -30);    // In inches
-                turnToHeading(TURN_SPEED, -180);               // In Degrees
-                holdHeading(TURN_SPEED, -180, 0.25);
-
-                driveStraight(DRIVE_SPEED, 30, -180);    // In inches
-                turnToHeading(TURN_SPEED, -90);               // In Degrees
-                holdHeading(TURN_SPEED, -90, 0.25);
-
-                driveStraight(DRIVE_SPEED, 20, -90);    // In inches
                 turnToHeading(TURN_SPEED, 0);               // In Degrees
                 holdHeading(TURN_SPEED, 0, 0.25);
 
                 driveStraight(DRIVE_SPEED, 30, 0);    // In inches
+                turnToHeading(TURN_SPEED, -90);               // In Degrees
+                holdHeading(TURN_SPEED, -90, 0.25);
+
+                driveStraight(DRIVE_SPEED, 20, -90);    // In inches
+                turnToHeading(TURN_SPEED, -180);               // In Degrees
+                holdHeading(TURN_SPEED, -180, 0.25);
+
+                driveStraight(DRIVE_SPEED, 30, -180);    // In inches
                 turnToHeading(TURN_SPEED, -90);               // In Degrees
                 holdHeading(TURN_SPEED, -90, 0.25);
                 break;
@@ -635,7 +635,7 @@ public class RedDownRight extends LinearOpMode{
                 break;
         }
     }
-    public void redRight (){
+    public void redLeft () {
         driveStraight(DRIVE_SPEED, 18.0, -180.0);    // In inches
         turnToHeading(TURN_SPEED, -90.0);               // In Degrees
         holdHeading(TURN_SPEED, -90, 0.25);
@@ -647,5 +647,6 @@ public class RedDownRight extends LinearOpMode{
         driveStraight(DRIVE_SPEED, 18.0, -180.0);    // In inches
         turnToHeading(TURN_SPEED, -90.0);               // In Degrees
         holdHeading(TURN_SPEED, -90, 0.25);
+
     }
 }

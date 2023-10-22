@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Autonomous;
+package org.firstinspires.ftc.teamcode.Autonomous.RedFront;
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -25,9 +25,9 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.concurrent.TimeUnit;
 
-@Autonomous(name="MoveRobot", group="Autonomous")
+@Autonomous(name="RedFrontUpLeft", group="Autonomous")
 //@Disabled
-public class BasicTest6 extends LinearOpMode {
+public class RedFrontUpLeft extends LinearOpMode {
     final double DESIRED_DISTANCE = 12.0; //  this is how close the camera should get to the target (inches)
 
     //  Set the GAIN constants to control the relationship between the measured position error, and how much power is
@@ -128,13 +128,8 @@ public class BasicTest6 extends LinearOpMode {
                 //Grabber.setPosition(0);
 
                 driveBackward(5, 0.8);
-                turnToHeading(0);
-
-                driveForward(25, 0.8);
                 turnToHeading(-90);
-
-                driveForward(65, 1);
-                turnToHeading(-135);
+                //April detections after this
             }
             else if (objectDetectedRight) {
                 Position = 3;
@@ -150,8 +145,9 @@ public class BasicTest6 extends LinearOpMode {
                 driveForward(25, .8);
                 turnToHeading(-90);
 
-                driveForward(65, 1);
+                driveForward(25, 1);
                 turnToHeading(-135);
+                //April detection after this
             }
             else {
                 Position = 2;
@@ -162,16 +158,8 @@ public class BasicTest6 extends LinearOpMode {
                 //Grabber.setPosition(0);
 
                 driveBackward(5, .8);
-                turnToHeading(90);
-
-                driveForward(20, .8);
-                turnToHeading(0);
-
-                driveForward(25, .8);
                 turnToHeading(-90);
-
-                driveForward(85, 1);
-                turnToHeading(-135);
+                //April detection after this
             }
 //APRIL TAG
             APRIL = true;
@@ -434,4 +422,3 @@ public class BasicTest6 extends LinearOpMode {
 
     }
 }
-
