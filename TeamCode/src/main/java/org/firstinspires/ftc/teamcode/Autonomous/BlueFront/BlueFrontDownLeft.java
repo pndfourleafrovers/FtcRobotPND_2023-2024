@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Autonomous.RedFront;
+package org.firstinspires.ftc.teamcode.Autonomous.BlueFront;
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -25,9 +25,9 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.concurrent.TimeUnit;
 
-@Autonomous(name="RedFrontUpRight", group="Autonomous")
+@Autonomous(name="BlueFrontDownLeft", group="Autonomous")
 //@Disabled
-public class RedFrontUpRight extends LinearOpMode {
+public class BlueFrontDownLeft extends LinearOpMode {
     final double DESIRED_DISTANCE = 12.0; //  this is how close the camera should get to the target (inches)
 
     //  Set the GAIN constants to control the relationship between the measured position error, and how much power is
@@ -81,7 +81,7 @@ public class RedFrontUpRight extends LinearOpMode {
         double drive = 0;        // Desired forward power/speed (-1 to +1)
         double strafe = 0;        // Desired strafe power/speed (-1 to +1)
         double turn = 0;        // Desired turning power/speed (-1 to +1)
-
+/*
         Grabber = hardwareMap.get(Servo.class, "pmmfloor");
         pmmA = hardwareMap.get(Servo.class, "pmmA");
         arm = hardwareMap.get(DcMotor.class, "arm");
@@ -92,7 +92,7 @@ public class RedFrontUpRight extends LinearOpMode {
 
         arm.setPower(0.5);
         arm.setTargetPosition(TICKS_PER_DEGREE*7);
-
+*/
         //sets Grabber to 180 if necessary
         //Grabber.setPosition(0.66666667);
 
@@ -121,19 +121,20 @@ public class RedFrontUpRight extends LinearOpMode {
 
             if (objectDetectedLeft) {
                 Position = 1;
-                turnToHeading(90);
+                turnToHeading(-90);
                 driveForward(5, 0.5);
 
                 //Release Grab
                 //Grabber.setPosition(0);
 
                 driveBackward(5, 0.8);
-                turnToHeading(-90);
+                turnToHeading(90);
+                APRIL = true;
                 //April detections after this
             }
             else if (objectDetectedRight) {
                 Position = 3;
-                turnToHeading(-90);
+                turnToHeading(90);
                 driveForward(5, 0.5);
 
                 //Release Grab
@@ -142,11 +143,12 @@ public class RedFrontUpRight extends LinearOpMode {
                 driveBackward(5, .8);
                 turnToHeading(0);
 
-                driveForward(20, .8);
-                turnToHeading(-90);
+                driveBackward(20, .8);
+                turnToHeading(90);
 
                 driveForward(20, 1);
-                turnToHeading(-135);
+                turnToHeading(45);
+                APRIL = true;
                 //April detection after this
             }
             else {
@@ -158,13 +160,15 @@ public class RedFrontUpRight extends LinearOpMode {
                 //Grabber.setPosition(0);
 
                 driveBackward(5, .8);
-                turnToHeading(-90);
+                turnToHeading(90);
+                APRIL = true;
                 //April detection after this
             }
 //APRIL TAG
-            APRIL = true;
+
+            Position = Position;
             while(APRIL = true) {
-                DESIRED_TAG_ID = Position + 3; //plus 3 for red only
+                DESIRED_TAG_ID = Position; //plus 3 for red only
                 detectedTag = null; // APRIL TAG:
                 //The line below creates a instance of the Class tagSearcher which is defined in file AprilTagSearcher
                 AprilTagDetection detectedTag = tagSearcher.findTag(DESIRED_TAG_ID);
@@ -181,14 +185,19 @@ public class RedFrontUpRight extends LinearOpMode {
                     telemetry.addData("Auto", "Drive %5.2f, Strafe %5.2f, Turn %5.2f ", drive, strafe, turn);
                 }
                 telemetry.update();
+
+
                 // Apply desired axes motions to the drivetrain.
                 moveAprilRobot(drive, strafe, turn);
                 double stopDistance=drive;
                 if(stopDistance<=0.25) {
                     APRIL = false;
                 }
+
             }
             /*
+
+
             //Place pixel
             arm.setTargetPosition(TICKS_PER_DEGREE*207);
             //Release pixel
@@ -197,8 +206,8 @@ public class RedFrontUpRight extends LinearOpMode {
             arm.setTargetPosition(TICKS_PER_DEGREE*7)
             */
             //Parking Procedure
-            turnToHeading(-180);
-            driveForward(20, 0.5);
+            turnToHeading(0);
+            driveForward(25, 0.5);
 
             turnToHeading(-90);
             driveForward(5, .8);
@@ -423,3 +432,4 @@ public class RedFrontUpRight extends LinearOpMode {
 
     }
 }
+

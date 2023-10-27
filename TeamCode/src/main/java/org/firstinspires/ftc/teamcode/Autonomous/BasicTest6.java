@@ -25,7 +25,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.concurrent.TimeUnit;
 
-@Autonomous(name="MoveRobot", group="Autonomous")
+@Autonomous(name="BasicT6", group="Autonomous")
 //@Disabled
 public class BasicTest6 extends LinearOpMode {
     final double DESIRED_DISTANCE = 12.0; //  this is how close the camera should get to the target (inches)

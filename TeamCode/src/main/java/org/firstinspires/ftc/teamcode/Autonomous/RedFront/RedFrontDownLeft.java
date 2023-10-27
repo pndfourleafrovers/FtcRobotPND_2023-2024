@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Autonomous.RedFront;
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
@@ -26,7 +27,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import java.util.concurrent.TimeUnit;
 
 @Autonomous(name="RedFrontDownLeft", group="Autonomous")
-//@Disabled
+@Disabled
 public class RedFrontDownLeft extends LinearOpMode {
     final double DESIRED_DISTANCE = 12.0; //  this is how close the camera should get to the target (inches)
 
@@ -114,7 +115,7 @@ public class RedFrontDownLeft extends LinearOpMode {
         waitForStart();
         while (opModeIsActive()) {
             turnToHeading(0);
-            driveForward(24, 0.5);
+            driveBackward(24, 0.5);
             lookForProp = true;
             driveForward(6, 0.5);
             lookForProp = false;
@@ -129,6 +130,7 @@ public class RedFrontDownLeft extends LinearOpMode {
 
                 driveBackward(5, 0.8);
                 turnToHeading(-90);
+                APRIL = true;
                 //April detections after this
             }
             else if (objectDetectedRight) {
@@ -142,11 +144,12 @@ public class RedFrontDownLeft extends LinearOpMode {
                 driveBackward(5, .8);
                 turnToHeading(0);
 
-                driveBackward(25, .8);
+                driveBackward(20, .8);
                 turnToHeading(-90);
 
-                driveForward(25, 1);
-                turnToHeading(-135);
+                driveForward(20, 1);
+                turnToHeading(-45);
+                APRIL = true;
                 //April detection after this
             }
             else {
@@ -159,12 +162,12 @@ public class RedFrontDownLeft extends LinearOpMode {
 
                 driveBackward(5, .8);
                 turnToHeading(-90);
+                APRIL = true;
                 //April detection after this
             }
 //APRIL TAG
 
             Position = Position;
-            APRIL = true;
             while(APRIL = true) {
                 DESIRED_TAG_ID = Position + 3; //plus 3 for red only
                 detectedTag = null; // APRIL TAG:
@@ -186,8 +189,10 @@ public class RedFrontDownLeft extends LinearOpMode {
 
                 // Apply desired axes motions to the drivetrain.
                 moveAprilRobot(drive, strafe, turn);
-                sleep(10);
-                APRIL = false;
+                double stopDistance=drive;
+                if(stopDistance<=0.25) {
+                    APRIL = false;
+                }
             }
             /*
             //Place pixel
@@ -260,7 +265,7 @@ public class RedFrontDownLeft extends LinearOpMode {
     }
     public void driveForward(double distance, double power) {
         int ticksToMove;
-        double ticksPerInch = (520 / (2.25*1.5/2 * Math.PI)); //520 encoder ticks per one circumference of the wheel
+        double ticksPerInch = (537.7 / ((96/25.4) * Math.PI)); //520 encoder ticks per one circumference of the wheel
         ticksToMove = (int) (distance * ticksPerInch);
         // Set the target positions for each motor
         leftFrontDrive.setTargetPosition(leftFrontDrive.getCurrentPosition() + ticksToMove);

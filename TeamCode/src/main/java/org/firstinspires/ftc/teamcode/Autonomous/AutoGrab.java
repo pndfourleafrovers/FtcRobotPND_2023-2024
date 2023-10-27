@@ -23,7 +23,7 @@ public class AutoGrab extends LinearOpMode {
 
         waitForStart();
 
-        Grabber.setPosition(0.66666667); //Check to see what the effective value of this is.
+        Grabber.setPosition(0.6); //Check to see what the effective value of this is.
 
         telemetry.addData("Servo Position", Grabber.getPosition());
         telemetry.update();

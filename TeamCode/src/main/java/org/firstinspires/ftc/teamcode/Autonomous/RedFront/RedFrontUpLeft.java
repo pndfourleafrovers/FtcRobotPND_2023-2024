@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Autonomous.RedFront;
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
@@ -114,7 +115,7 @@ public class RedFrontUpLeft extends LinearOpMode {
         waitForStart();
         while (opModeIsActive()) {
             turnToHeading(0);
-            driveForward(24, 0.5);
+            driveBackward(24, 0.5);
             lookForProp = true;
             driveForward(6, 0.5);
             lookForProp = false;
@@ -142,10 +143,10 @@ public class RedFrontUpLeft extends LinearOpMode {
                 driveBackward(5, .8);
                 turnToHeading(0);
 
-                driveForward(25, .8);
+                driveForward(20, .8);
                 turnToHeading(-90);
 
-                driveForward(25, 1);
+                driveForward(20, 1);
                 turnToHeading(-135);
                 //April detection after this
             }
@@ -184,8 +185,10 @@ public class RedFrontUpLeft extends LinearOpMode {
 
                 // Apply desired axes motions to the drivetrain.
                 moveAprilRobot(drive, strafe, turn);
-                sleep(10);
-                APRIL = false;
+                double stopDistance=drive;
+                if(stopDistance<=0.25) {
+                    APRIL = false;
+                }
             }
             /*
             //Place pixel
@@ -258,7 +261,7 @@ public class RedFrontUpLeft extends LinearOpMode {
     }
     public void driveForward(double distance, double power) {
         int ticksToMove;
-        double ticksPerInch = (520 / (2.25*1.5/2 * Math.PI)); //520 encoder ticks per one circumference of the wheel
+        double ticksPerInch = (537.7 / ((96/25.4) * Math.PI)); //520 encoder ticks per one circumference of the wheel
         ticksToMove = (int) (distance * ticksPerInch);
         // Set the target positions for each motor
         leftFrontDrive.setTargetPosition(leftFrontDrive.getCurrentPosition() + ticksToMove);
