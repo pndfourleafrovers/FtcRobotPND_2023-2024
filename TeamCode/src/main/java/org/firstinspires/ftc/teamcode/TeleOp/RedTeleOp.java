@@ -53,12 +53,13 @@ public class RedTeleOp extends LinearOpMode{
         private Servo pmmA;
         private DcMotor arm;
         static final int TICKS_PER_MOTOR_REV = 1425;
-        static final double TICKS_PER_GEAR_REV = TICKS_PER_MOTOR_REV * 3;
-        static final int TICKS_PER_DEGREE = TICKS_PER_MOTOR_REV / 120;
+        static final int TICKS_PER_GEAR_REV = TICKS_PER_MOTOR_REV * 3;
+        static final int TICKS_PER_DEGREE = TICKS_PER_GEAR_REV / 120;
         int armPosition = 819;
         private Servo Grabber;
-        boolean APRIL = false;
+        boolean APRIL = true;
         AprilTagFinder tagSearcher = new AprilTagFinder(aprilTag, telemetry);
+        boolean Run = true;
         @Override
         public void runOpMode() {
 
@@ -96,7 +97,7 @@ public class RedTeleOp extends LinearOpMode{
                 arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 arm.setPower(0.5);
                 arm.setTargetPosition(TICKS_PER_DEGREE * 7);
-                Grabber.setPosition(1);
+                Grabber.setPosition(0.62);
                 double max;
 
                 // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
@@ -130,40 +131,55 @@ public class RedTeleOp extends LinearOpMode{
                 RearLeft.setPower(leftBackPower);
                 RearRight.setPower(rightBackPower);
 
-                if (gamepad2.x) {
-                    arm.setTargetPosition(TICKS_PER_DEGREE * 7);
-                    pmmA.setPosition(1);
-                } else if (gamepad2.y) {
-                    arm.setTargetPosition(TICKS_PER_DEGREE * 207);
-                    pmmA.setPosition(0);
+
+                //Arm rotation
+                if(gamepad2.x){
+                    armMovement(7);
                 }
-                //the end is a test to see if that works, please change to something else if possible. Which it is.
-                else if (gamepad2.y && gamepad2.x) {
-                    arm.setTargetPosition(TICKS_PER_DEGREE * 178);
-                    pmmA.setPosition(0);
-                } else if (gamepad2.dpad_down) {
-                    arm.setTargetPosition(TICKS_PER_DEGREE * 150);
-                    pmmA.setPosition(0);
-                } else if (gamepad2.dpad_up) {
-                    arm.setTargetPosition(TICKS_PER_DEGREE * 120);
-                } else if (gamepad2.a) {
-                    Grabber.setPosition(1);
+                else if (gamepad2.y) {
+                    armMovement(207);
                 }
-                // Servos operate 0-180 degrees by a 0-1 metric. This sets servo position to 180 degrees.
+                else if (gamepad2.a) {
+                    armMovement(178);
+                }
                 else if (gamepad2.b) {
-                    Grabber.setPosition(0.0);
-                } else if (gamepad1.a) {
-                    APRIL = true;
-                    approachTag(4);
-                } else if (gamepad1.b) {
-                    APRIL = true;
-                    approachTag(5);
-                } else if (gamepad1.x) {
-                    APRIL = true;
-                    approachTag(6);
+                    armMovement(150);
                 }
-                else if (gamepad1.y) {
-                    APRIL = true;
+                else if (gamepad2.dpad_left) {
+                    armMovement(120);
+                }
+                else if (gamepad2.dpad_right) {
+                    armMovement(0);
+                }
+
+
+                //Manipulates pmmF
+                else if (gamepad2.left_bumper) {
+                    pmmF(0.0);
+                }
+                else if (gamepad2.right_bumper) {
+                    pmmF(0.62);
+                }
+
+
+                //Manipulates pmmA
+                else if (gamepad2.dpad_down) {
+                    pmmA(0.0);
+                }
+                else if (gamepad2.dpad_up) {
+                    pmmA(0.5);
+                }
+
+
+                //Makes robot drive toward apriltag
+                else if (gamepad1.a) {
+                    approachTag(1);
+                }
+                else if (gamepad1.b) {
+                    approachTag(2);
+                }
+                else if (gamepad1.x) {
+                    approachTag(3);
                 }
             }
 
@@ -307,5 +323,30 @@ public class RedTeleOp extends LinearOpMode{
             sleep(10);
             APRIL = false;
         }
+    }
+    private void armMovement (int degree){
+        while (Run = true) {
+            arm.setTargetPosition(TICKS_PER_DEGREE * degree);
+            arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            arm.setPower(0.5);
+            // pmmA.setPosition(0.62);
+            if (gamepad2.right_stick_button) {
+                //alternative: reverse directions and move a positive value. Remember to reset positive direction afterwards,
+                //assuming it doesn't do it automatically.
+                arm.setTargetPosition(TICKS_PER_DEGREE * -degree);
+                //pmmA.setPosition(0.0);
+                arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                break;
+            }
+        }
+
+    }
+    private void pmmF (double turnVal){
+        Grabber.setDirection(Servo.Direction.REVERSE);
+        Grabber.setPosition(turnVal);
+    }
+    private void pmmA (double turnVal){
+        pmmA.setDirection(Servo.Direction.REVERSE);
+        pmmA.setPosition(turnVal);
     }
     }

@@ -21,8 +21,8 @@ import java.util.concurrent.TimeUnit;
 
 
 @TeleOp(name="BlueTeleOp", group="TeleOp")
-@Disabled
-public class BlueTeleOp extends LinearOpMode{
+//@Disabled
+public class BlueTeleOp extends LinearOpMode {
 
     // Declare OpMode members for each of the 4 motors.
     final double DESIRED_DISTANCE = 12.0; //  this is how close the camera should get to the target (inches)
@@ -30,13 +30,13 @@ public class BlueTeleOp extends LinearOpMode{
     //  Set the GAIN constants to control the relationship between the measured position error, and how much power is
     //  applied to the drive motors to correct the error.
     //  Drive = Error * Gain    Make these values smaller for smoother control, or larger for a more aggressive response.
-    final double SPEED_GAIN  =  0.02  ;   //  Forward Speed Control "Gain". eg: Ramp up to 50% power at a 25 inch error.   (0.50 / 25.0)
-    final double STRAFE_GAIN =  0.015 ;   //  Strafe Speed Control "Gain".  eg: Ramp up to 25% power at a 25 degree Yaw error.   (0.25 / 25.0)
-    final double TURN_GAIN   =  0.01  ;   //  Turn Control "Gain".  eg: Ramp up to 25% power at a 25 degree error. (0.25 / 25.0)
+    final double SPEED_GAIN = 0.02;   //  Forward Speed Control "Gain". eg: Ramp up to 50% power at a 25 inch error.   (0.50 / 25.0)
+    final double STRAFE_GAIN = 0.015;   //  Strafe Speed Control "Gain".  eg: Ramp up to 25% power at a 25 degree Yaw error.   (0.25 / 25.0)
+    final double TURN_GAIN = 0.01;   //  Turn Control "Gain".  eg: Ramp up to 25% power at a 25 degree error. (0.25 / 25.0)
 
     final double MAX_AUTO_SPEED = 0.5;   //  Clip the approach speed to this max value (adjust for your robot)
-    final double MAX_AUTO_STRAFE= 0.5;   //  Clip the approach speed to this max value (adjust for yougfmr robot)
-    final double MAX_AUTO_TURN  = 0.3;   //  Clip the turn speed to this max value (adjust for your robot)
+    final double MAX_AUTO_STRAFE = 0.5;   //  Clip the approach speed to this max value (adjust for yougfmr robot)
+    final double MAX_AUTO_TURN = 0.3;   //  Clip the turn speed to this max value (adjust for your robot)
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotor FrontLeft;
     private DcMotor RearLeft;
@@ -57,15 +57,17 @@ public class BlueTeleOp extends LinearOpMode{
     static final int TICKS_PER_DEGREE = TICKS_PER_MOTOR_REV / 120;
     int armPosition = 819;
     private Servo Grabber;
-    boolean APRIL = false;
+    boolean APRIL = true;
     AprilTagFinder tagSearcher = new AprilTagFinder(aprilTag, telemetry);
+    boolean Run = true;
+
     @Override
     public void runOpMode() {
 
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the DS or RC devices.
-        FrontLeft  = hardwareMap.get(DcMotor.class, "Left_front");
-        RearLeft  = hardwareMap.get(DcMotor.class, "Left_rear");
+        FrontLeft = hardwareMap.get(DcMotor.class, "Left_front");
+        RearLeft = hardwareMap.get(DcMotor.class, "Left_rear");
         FrontRight = hardwareMap.get(DcMotor.class, "Right_front");
         RearRight = hardwareMap.get(DcMotor.class, "Right_rear");
 
@@ -95,8 +97,18 @@ public class BlueTeleOp extends LinearOpMode{
             arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             arm.setPower(0.5);
+
+            pmmA(0.5);
+            //Make sure start movement isn't all messed up by this stuff
+
+           // armStandard(7);
+            //how would you maintain a standard postion at 7? Because otherwise we have to repeatedly come back down to zero
             arm.setTargetPosition(TICKS_PER_DEGREE * 7);
-            Grabber.setPosition(1);
+            arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+            pmmF(0.62);
+
             double max;
 
             // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
@@ -129,6 +141,61 @@ public class BlueTeleOp extends LinearOpMode{
             FrontRight.setPower(rightFrontPower);
             RearLeft.setPower(leftBackPower);
             RearRight.setPower(rightBackPower);
+            //test to see if this works, provided the other code works as well.
+
+            //Might have to add (subtract?) seven degrees to each, -7 for zero, to account for the 7 movement in the beginning.
+            //See if program works like this first
+            //Arm rotation
+
+            if (gamepad2.x) {
+                armMovement(7);    //0
+            }
+            else if (gamepad2.y) {
+                armMovement(207);    //214
+            }
+            else if (gamepad2.a) {
+                armMovement(178);   //185
+            }
+            else if (gamepad2.b) {
+                armMovement(150);  //157
+            }
+            else if (gamepad2.dpad_left) {
+                armMovement(120);  //127
+            }
+            else if (gamepad2.dpad_right) {
+                armMovement(0);   //-7
+            }
+
+
+            //Manipulates pmmF
+            else if (gamepad2.left_bumper) {
+                pmmF(0.0);
+            }
+            else if (gamepad2.right_bumper) {
+                pmmF(0.62);
+            }
+
+
+            //Manipulates pmmA
+            else if (gamepad2.dpad_down) {
+                pmmA(0.0);
+            }
+            else if (gamepad2.dpad_up) {
+                pmmA(0.55);
+            }
+
+
+            //Makes robot drive toward apriltag
+            else if (gamepad1.a) {
+                approachTag(1);
+            }
+            else if (gamepad1.b) {
+                approachTag(2);
+            }
+            else if (gamepad1.x) {
+                approachTag(3);
+            }
+/*
 
             if (gamepad2.x) {
                 arm.setTargetPosition(TICKS_PER_DEGREE * 7);
@@ -152,22 +219,9 @@ public class BlueTeleOp extends LinearOpMode{
             // Servos operate 0-180 degrees by a 0-1 metric. This sets servo position to 180 degrees.
             else if (gamepad2.b) {
                 Grabber.setPosition(0.0);
-            } else if (gamepad1.a) {
-                APRIL = true;
-                approachTag(4);
-            } else if (gamepad1.b) {
-                APRIL = true;
-                approachTag(5);
-            } else if (gamepad1.x) {
-                APRIL = true;
-                approachTag(6);
-            }
-            else if (gamepad1.y) {
-                APRIL = true;
-            }
+                */
+
         }
-
-
 
 
         // Show the elapsed game time and wheel power.
@@ -181,10 +235,10 @@ public class BlueTeleOp extends LinearOpMode{
 
     public void moveAprilRobot(double x, double y, double yaw) {
         // Calculate wheel powers.
-        double leftFrontPower    =  x -y -yaw;
-        double rightFrontPower   =  x +y +yaw;
-        double leftBackPower     =  x +y -yaw;
-        double rightBackPower    =  x -y +yaw;
+        double leftFrontPower = x - y - yaw;
+        double rightFrontPower = x + y + yaw;
+        double leftBackPower = x + y - yaw;
+        double rightBackPower = x - y + yaw;
 
         // Normalize wheel powers to be less than 1.0
         double max = Math.max(Math.abs(leftFrontPower), Math.abs(rightFrontPower));
@@ -204,6 +258,7 @@ public class BlueTeleOp extends LinearOpMode{
         RearLeft.setPower(leftBackPower);
         RearRight.setPower(rightBackPower);
     }
+
     private void initAprilTag() {
         // Create the AprilTag processor by using a builder.
         aprilTag = new AprilTagProcessor.Builder().build();
@@ -230,6 +285,7 @@ public class BlueTeleOp extends LinearOpMode{
                     .build();
         }
     }
+
     private void initHardware() {
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must match the names assigned during the robot configuration.
@@ -248,7 +304,7 @@ public class BlueTeleOp extends LinearOpMode{
         RearRight.setDirection(DcMotor.Direction.FORWARD);
     }
 
-    private void    setManualExposure(int exposureMS, int gain) {
+    private void setManualExposure(int exposureMS, int gain) {
         // THIS IS FOR THE APRIL TAG
         // Wait for the camera to be open, then use the controls
 
@@ -268,14 +324,13 @@ public class BlueTeleOp extends LinearOpMode{
         }
 
         // Set camera controls unless we are stopping.
-        if (!isStopRequested())
-        {
+        if (!isStopRequested()) {
             ExposureControl exposureControl = visionPortal.getCameraControl(ExposureControl.class);
             if (exposureControl.getMode() != ExposureControl.Mode.Manual) {
                 exposureControl.setMode(ExposureControl.Mode.Manual);
                 sleep(50);
             }
-            exposureControl.setExposure((long)exposureMS, TimeUnit.MILLISECONDS);
+            exposureControl.setExposure((long) exposureMS, TimeUnit.MILLISECONDS);
             sleep(20);
             GainControl gainControl = visionPortal.getCameraControl(GainControl.class);
             gainControl.setGain(gain);
@@ -283,8 +338,9 @@ public class BlueTeleOp extends LinearOpMode{
         }
 
     }
-    private void approachTag (int DESIRED_TAG_ID){
-        while(APRIL = true) {
+
+    private void approachTag(int DESIRED_TAG_ID) {
+        while (APRIL = true) {
             detectedTag = null; // APRIL TAG:
             //The line below creates a instance of the Class tagSearcher which is defined in file AprilTagSearcher
             AprilTagDetection detectedTag = tagSearcher.findTag(DESIRED_TAG_ID);
@@ -304,9 +360,51 @@ public class BlueTeleOp extends LinearOpMode{
 
             // Apply desired axes motions to the drivetrain.
             moveAprilRobot(drive, strafe, turn);
-            sleep(10);
-            APRIL = false;
+            if (gamepad1.right_stick_button) {
+                break;
+            }
         }
     }
-}
 
+    private void armMovement(int degree) {
+        while (gamepad1.dpad_right) {
+            arm.setTargetPosition(TICKS_PER_DEGREE * degree);
+            arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            arm.setPower(0.5);
+            // pmmA.setPosition(0.0);
+            /*
+            if (gamepad2.right_stick_button) {
+                //alternative: reverse directions and move a positive value. Remember to reset positive direction afterwards,
+                //assuming it doesn't do it automatically.
+                arm.setTargetPosition(TICKS_PER_DEGREE * -degree);
+                //pmmA.setPosition(0.62);
+                arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                //armStandard?
+                break;
+            }
+            */
+
+        }
+    }
+    private void armStandard(int degree) {
+        //maybe a while loop? Condition for end/if is any of the other armMovement starters? And they all end with returning to armStandard?
+        //Worried have this method at the beginning will prevent the programs from continuing because of the while loop. 
+        while(Run = true) {
+            arm.setTargetPosition(TICKS_PER_DEGREE * degree);
+            arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            arm.setPower(0.5);
+            arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            if (gamepad2.a || gamepad2.b || gamepad2.x || gamepad2.y || gamepad2.dpad_left || gamepad2.dpad_right){
+                break;
+            }
+        }
+}
+    private void pmmF (double turnVal){
+        Grabber.setDirection(Servo.Direction.REVERSE);
+        Grabber.setPosition(turnVal);
+    }
+    private void pmmA (double turnVal){
+        pmmA.setDirection(Servo.Direction.REVERSE);
+        pmmA.setPosition(turnVal);
+    }
+}

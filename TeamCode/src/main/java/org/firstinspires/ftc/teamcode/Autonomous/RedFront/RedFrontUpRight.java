@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 @Autonomous(name="RedFrontUpRight", group="Autonomous")
 //@Disabled
 public class RedFrontUpRight extends LinearOpMode {
-    final double DESIRED_DISTANCE = 12.0; //  this is how close the camera should get to the target (inches)
+    final double DESIRED_DISTANCE = 13.5; //  this is how close the camera should get to the target (inches)
 
     //  Set the GAIN constants to control the relationship between the measured position error, and how much power is
     //  applied to the drive motors to correct the error.
@@ -55,7 +55,7 @@ public class RedFrontUpRight extends LinearOpMode {
     private VisionPortal visionPortal;               // Used to manage the video source.
     private AprilTagProcessor aprilTag;              // Used for managing the AprilTag detection process.
     private AprilTagDetection detectedTag = null;     // Used to hold the data for a detected AprilTag
-    boolean APRIL = false;
+    boolean APRIL = true;
     private double drive = 0;
     private double strafe = 0;
     private double turn = 0;
@@ -67,10 +67,10 @@ public class RedFrontUpRight extends LinearOpMode {
     static final int TICKS_PER_DEGREE = TICKS_PER_MOTOR_REV/120;
     int armPosition = 819;
     private ElapsedTime runtime = new ElapsedTime();
-    RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.UP;
-    RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
+    RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.FORWARD;
+    RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.UP;
     RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoDirection, usbDirection);
-    private Servo Grabber;
+    private Servo pmmF;
     private IMU imu = null;      // Control/Expansion Hub IMU
 
     @Override
@@ -82,19 +82,17 @@ public class RedFrontUpRight extends LinearOpMode {
         double strafe = 0;        // Desired strafe power/speed (-1 to +1)
         double turn = 0;        // Desired turning power/speed (-1 to +1)
 
-        Grabber = hardwareMap.get(Servo.class, "pmmfloor");
+        pmmF = hardwareMap.get(Servo.class, "pmmfloor");
         pmmA = hardwareMap.get(Servo.class, "pmmA");
         arm = hardwareMap.get(DcMotor.class, "arm");
 
         arm.setDirection(DcMotor.Direction.FORWARD);
         arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        // arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        arm.setPower(0.5);
-        arm.setTargetPosition(TICKS_PER_DEGREE*7);
 
-        //sets Grabber to 180 if necessary
-        //Grabber.setPosition(0.66666667);
+        //sets pmmF to 180 if necessary
+
 
         initAprilTag();// APRIL TAG:
         AprilTagFinder tagSearcher = new AprilTagFinder(aprilTag, telemetry);
@@ -113,57 +111,73 @@ public class RedFrontUpRight extends LinearOpMode {
 
         waitForStart();
         while (opModeIsActive()) {
+
+
+            arm.setTargetPosition(TICKS_PER_DEGREE * 7);
+            arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            arm.setPower(0.5);
+
+            pmmA.setDirection(Servo.Direction.FORWARD);
+            pmmA.setPosition(0.55);
+
+            pmmF.setDirection(Servo.Direction.REVERSE);
+            pmmF.setPosition(0.62);
+
             turnToHeading(0);
-            driveBackward(24, 0.5);
+            driveBackward(21, 0.5);
             lookForProp = true;
-            driveForward(6, 0.5);
+            driveBackward(5, 0.5);
             lookForProp = false;
 
             if (objectDetectedLeft) {
                 Position = 1;
                 turnToHeading(90);
-                driveForward(5, 0.5);
+                driveBackward(3.5, 0.5);
 
                 //Release Grab
-                //Grabber.setPosition(0);
+                pmmF.setDirection(Servo.Direction.REVERSE);
+                pmmF.setPosition(0);
 
-                driveBackward(5, 0.8);
-                turnToHeading(-90);
+                driveForward(5, 0.5);
+                turnToHeading(90);
                 //April detections after this
-            }
-            else if (objectDetectedRight) {
+            } else if (objectDetectedRight) {
                 Position = 3;
                 turnToHeading(-90);
-                driveForward(5, 0.5);
+                driveBackward(3.5, 0.5);
 
                 //Release Grab
-                //Grabber.setPosition(0);
+                pmmF.setDirection(Servo.Direction.REVERSE);
+                pmmF.setPosition(0);
 
-                driveBackward(5, .8);
-                turnToHeading(0);
+                driveForward(6.0, .5);
+                turnToHeading(8);
 
-                driveForward(20, .8);
-                turnToHeading(-90);
+                driveForward(20, .5);
+                turnToHeading(90);
 
-                driveForward(20, 1);
-                turnToHeading(-135);
+                driveForward(26, 0.5);
+                turnToHeading(180);
+
+                driveForward(17, 0.5);
+                turnToHeading(90);
                 //April detection after this
-            }
-            else {
+            } else {
                 Position = 2;
                 // Continue forward if no objects were detected
-                driveForward(5, 0.5);
+                driveBackward(3.5, 0.5);
 
                 //Release Grab
-                //Grabber.setPosition(0);
+                pmmF.setDirection(Servo.Direction.REVERSE);
+                pmmF.setPosition(0);
 
-                driveBackward(5, .8);
-                turnToHeading(-90);
+                driveForward(5, .5);
+                turnToHeading(90);
                 //April detection after this
             }
 //APRIL TAG
-            APRIL = true;
-            while(APRIL = true) {
+
+            while (APRIL = true) {
                 DESIRED_TAG_ID = Position + 3; //plus 3 for red only
                 detectedTag = null; // APRIL TAG:
                 //The line below creates a instance of the Class tagSearcher which is defined in file AprilTagSearcher
@@ -183,27 +197,92 @@ public class RedFrontUpRight extends LinearOpMode {
                 telemetry.update();
                 // Apply desired axes motions to the drivetrain.
                 moveAprilRobot(drive, strafe, turn);
-                double stopDistance=drive;
-                if(stopDistance<=0.25) {
-                    APRIL = false;
+
+                if (detectedTag != null && (detectedTag.ftcPose.range - DESIRED_DISTANCE)<= 0.5) {
+                    break;
+                }
+
+            }
+
+           // detectedTag != null && (detectedTag.ftcPose.range - DESIRED_DISTANCE)
+
+
+
+
+
+break;
+            }
+}
+/*
+int degree = 200;
+            boolean placement = true;
+            while (placement = true) {
+                //Place pixel
+                while (arm.isBusy()) {
+                    arm.setTargetPosition(TICKS_PER_DEGREE * degree);  //207
+                    arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    arm.setPower(0.5);
+                    sleep(1000);
+                    pmmA.setPosition(0.0);
+                    if ((arm.getCurrentPosition() - (TICKS_PER_DEGREE * -degree) < 2)) {
+                        break;
+                    }
+                }
+                while (arm.isBusy()) {
+                    arm.setTargetPosition(TICKS_PER_DEGREE * -degree);  //7
+                    arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    arm.setPower(0.5);
+                    sleep(1000);
+                    //   arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    if ((arm.getCurrentPosition() - (TICKS_PER_DEGREE * -degree) < 2)) ;
+                    {
+                        break;
+                    }
                 }
             }
             /*
-            //Place pixel
-            arm.setTargetPosition(TICKS_PER_DEGREE*207);
-            //Release pixel
-            pmmA.setPosition(0.0);
-            //Move arm back
-            arm.setTargetPosition(TICKS_PER_DEGREE*7)
-            */
-            //Parking Procedure
-            turnToHeading(-180);
-            driveForward(20, 0.5);
+                arm.setTargetPosition(TICKS_PER_DEGREE * degree);  //207
+                arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                arm.setPower(0.5);
+                sleep(1000);
+                pmmA.setPosition(0.0);
+                while(opModeIsActive() && arm.isBusy()){
+                }
+                arm.setTargetPosition(TICKS_PER_DEGREE * -degree);  //207
+                arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                arm.setPower(0.5);
+                sleep(1000);
+                pmmA.setPosition(0.0);
+                while(opModeIsActive() && arm.isBusy()){
+                }
+                break;
+                }
 
-            turnToHeading(-90);
-            driveForward(5, .8);
-        }
-    }
+             */
+                /*
+                //Release pixel
+                pmmA.setPosition(0.0);
+                //Move arm back
+                sleep(100);
+                arm.setTargetPosition(TICKS_PER_DEGREE * -degree);  //7
+                arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                arm.setPower(0.5);
+                sleep(1000);
+             //   arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                if((arm.getCurrentPosition()-(TICKS_PER_DEGREE * -degree)<2));{
+                    break;
+                }
+            }
+//Parking Procedure
+            turnToHeading(180);
+            driveForward(20, 0.3);
+
+            turnToHeading(90);
+            driveForward(5, .3);
+            */
+
+
+
     public void moveAprilRobot(double x, double y, double yaw) {
         // Calculate wheel powers.
         double leftFrontPower    =  x -y -yaw;

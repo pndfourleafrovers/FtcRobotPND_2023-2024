@@ -68,7 +68,7 @@ public class BlueFrontUpLeft extends LinearOpMode {
     static final int TICKS_PER_DEGREE = TICKS_PER_MOTOR_REV/120;
     int armPosition = 819;
     private ElapsedTime runtime = new ElapsedTime();
-    RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.BACKWARD;
+    RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.FORWARD;
     RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.UP;
     RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoDirection, usbDirection);
     private Servo pmmF;
@@ -117,18 +117,18 @@ public class BlueFrontUpLeft extends LinearOpMode {
             turnToHeading(0);
             driveBackward(24, 0.5);
             lookForProp = true;
-            driveForward(6, 0.5);
+            driveForward(10, 0.5);
             lookForProp = false;
 
             if (objectDetectedLeft) {
                 Position = 1;
                 turnToHeading(90);
-                driveForward(5, 0.5);
+                driveBackward(5, 0.5);
 
                 //Release Grab
                 //pmmF.setPosition(0);
 
-                driveBackward(5, 0.8);
+                driveForward(5, 0.8);
                 turnToHeading(-90);
                 APRIL = true;
                 //April detections after this
@@ -136,7 +136,7 @@ public class BlueFrontUpLeft extends LinearOpMode {
             else if (objectDetectedRight) {
                 Position = 3;
                 turnToHeading(-90);
-                driveForward(5, 0.5);
+                driveBackward(5, 0.5);
 
                 //Release Grab
                 //pmmF.setPosition(0);
@@ -155,7 +155,7 @@ public class BlueFrontUpLeft extends LinearOpMode {
             else {
                 Position = 2;
                 // Continue forward if no objects were detected
-                driveForward(5, 0.5);
+                driveBackward(5, 0.5);
 
 
                 //Release Grab

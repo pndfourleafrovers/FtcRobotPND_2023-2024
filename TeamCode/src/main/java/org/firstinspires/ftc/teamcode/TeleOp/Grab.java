@@ -21,26 +21,36 @@ public class Grab extends LinearOpMode {
     public void runOpMode() {
 
         Grabber = hardwareMap.get(Servo.class, "pmmfloor");
+        while(opModeInInit()) {
+            telemetry.addData("Servo Position", Grabber.getPosition());
+            telemetry.update();
+        }
+        waitForStart();
 
-    waitForStart();
+        while (opModeIsActive()) {
 
-    while (opModeIsActive()){
+            if (gamepad1.a) {
+                Grabber.setDirection(Servo.Direction.REVERSE);
+                Grabber.setPosition(0.62);
 
-        if(gamepad1.a)
-            Grabber.setPosition(0.6);
-        // Servos operate 0-180 degrees by a 0-1 metric. This sets servo position to 180 degrees.
-        else if(gamepad1.b)
-            Grabber.setPosition(0.0);
-    }
-    telemetry.addData("Servo Position", Grabber.getPosition());
-    telemetry.update();
-    }
-    // Should arm movement go with this part, or be attached to a separate input?
+            }
+            // Servos operate 0-180 degrees by a 0-1 metric. This sets servo position to 180 degrees.
+
+            else if (gamepad1.b) {
+                Grabber.setDirection(Servo.Direction.REVERSE);
+                Grabber.setPosition(0.0);
+
+            }
+            telemetry.addData("Servo Position", Grabber.getPosition());
+            telemetry.update();
+        }
+        // Should arm movement go with this part, or be attached to a separate input?
 
 
 //Maybe use && for adding more functions for buttons. Not too many though, that'd just get confusing.
 
 //find out how to make this a method we can call upon, kinda forgot.
+    }
 }
 /*
     // run until the end of the match (driver presses STOP)

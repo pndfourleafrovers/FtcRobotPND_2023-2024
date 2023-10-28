@@ -68,8 +68,8 @@ public class RedFrontDownLeft extends LinearOpMode {
     static final int TICKS_PER_DEGREE = TICKS_PER_MOTOR_REV/120;
     int armPosition = 819;
     private ElapsedTime runtime = new ElapsedTime();
-    RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.UP;
-    RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
+    RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.FORWARD;
+    RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.UP;
     RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoDirection, usbDirection);
     private Servo Grabber;
     private IMU imu = null;      // Control/Expansion Hub IMU

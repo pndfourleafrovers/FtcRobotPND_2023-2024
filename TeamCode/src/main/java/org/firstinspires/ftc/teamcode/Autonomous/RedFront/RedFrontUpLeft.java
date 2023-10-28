@@ -64,8 +64,8 @@ public class RedFrontUpLeft extends LinearOpMode {
     private Servo pmmA;
     private DcMotor arm;
     static final int     TICKS_PER_MOTOR_REV    = 1425;
-    static final double     TICKS_PER_GEAR_REV    = TICKS_PER_MOTOR_REV * 3;
-    static final int TICKS_PER_DEGREE = TICKS_PER_MOTOR_REV/120;
+    static final int     TICKS_PER_GEAR_REV    = TICKS_PER_MOTOR_REV * 3;
+    static final int TICKS_PER_DEGREE = TICKS_PER_GEAR_REV/120;
     int armPosition = 819;
     private ElapsedTime runtime = new ElapsedTime();
     RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.UP;
@@ -86,14 +86,14 @@ public class RedFrontUpLeft extends LinearOpMode {
         Grabber = hardwareMap.get(Servo.class, "pmmfloor");
         pmmA = hardwareMap.get(Servo.class, "pmmA");
         arm = hardwareMap.get(DcMotor.class, "arm");
-
+/*
         arm.setDirection(DcMotor.Direction.FORWARD);
         arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         arm.setPower(0.5);
         arm.setTargetPosition(TICKS_PER_DEGREE*7);
-
+*/
         //sets Grabber to 180 if necessary
         //Grabber.setPosition(0.66666667);
 
@@ -117,7 +117,7 @@ public class RedFrontUpLeft extends LinearOpMode {
             turnToHeading(0);
             driveBackward(24, 0.5);
             lookForProp = true;
-            driveForward(6, 0.5);
+            driveForward(9, 0.5);
             lookForProp = false;
 
             if (objectDetectedLeft) {

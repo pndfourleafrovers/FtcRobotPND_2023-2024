@@ -96,7 +96,7 @@ public class BlueFrontUpRight extends LinearOpMode {
         arm.setTargetPosition(TICKS_PER_DEGREE*7);
 */
         //sets pmmF to 180 if necessary
-        pmmF.setPosition(0.6);
+     //   pmmF.setPosition(0.6);
 
         initAprilTag();// APRIL TAG:
         AprilTagFinder tagSearcher = new AprilTagFinder(aprilTag, telemetry);
