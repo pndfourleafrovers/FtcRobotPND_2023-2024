@@ -60,6 +60,9 @@ public class BlueTeleOp extends LinearOpMode {
     boolean APRIL = true;
     AprilTagFinder tagSearcher = new AprilTagFinder(aprilTag, telemetry);
     boolean Run = true;
+    double axial = -gamepad1.left_stick_y;  // Note: pushing stick forward gives negative value
+    double lateral = gamepad1.left_stick_x;
+    double yaw = gamepad1.right_stick_x;
 
     @Override
     public void runOpMode() {
@@ -95,20 +98,20 @@ public class BlueTeleOp extends LinearOpMode {
             arm.setDirection(DcMotor.Direction.FORWARD);
 
             arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            //   arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             arm.setPower(0.5);
 
-            pmmA(0.5);
+            //  pmmA(0.5);
             //Make sure start movement isn't all messed up by this stuff
 
-           // armStandard(7);
+            // armStandard(7);
             //how would you maintain a standard postion at 7? Because otherwise we have to repeatedly come back down to zero
             arm.setTargetPosition(TICKS_PER_DEGREE * 7);
             arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
             pmmF(0.62);
-
+/*
             double max;
 
             // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
@@ -142,36 +145,33 @@ public class BlueTeleOp extends LinearOpMode {
             RearLeft.setPower(leftBackPower);
             RearRight.setPower(rightBackPower);
             //test to see if this works, provided the other code works as well.
-
+*/
             //Might have to add (subtract?) seven degrees to each, -7 for zero, to account for the 7 movement in the beginning.
             //See if program works like this first
             //Arm rotation
-
+            double a = gamepad1.right_stick_x;
+            double l = gamepad1.left_stick_x;
+            double y = gamepad1.right_stick_x;
+            basicMovement(a, l, y);
             if (gamepad2.x) {
-                armMovement(7);    //0
-            }
-            else if (gamepad2.y) {
-                armMovement(207);    //214
-            }
-            else if (gamepad2.a) {
-                armMovement(178);   //185
-            }
-            else if (gamepad2.b) {
-                armMovement(150);  //157
-            }
-            else if (gamepad2.dpad_left) {
-                armMovement(120);  //127
-            }
-            else if (gamepad2.dpad_right) {
-                armMovement(0);   //-7
+                armMovement2(7);    //0
+            } else if (gamepad2.y) {
+                armMovement2(207);    //200   207
+            } else if (gamepad2.a) {
+                armMovement2(178);   //171     178
+            } else if (gamepad2.b) {
+                armMovement2(150);  //143      150
+            } else if (gamepad2.dpad_left) {
+                armMovement2(120);  //113       120
+            } else if (gamepad2.dpad_right) {
+                armMovement2(0);   //-7          0
             }
 
 
             //Manipulates pmmF
             else if (gamepad2.left_bumper) {
                 pmmF(0.0);
-            }
-            else if (gamepad2.right_bumper) {
+            } else if (gamepad2.right_bumper) {
                 pmmF(0.62);
             }
 
@@ -179,8 +179,7 @@ public class BlueTeleOp extends LinearOpMode {
             //Manipulates pmmA
             else if (gamepad2.dpad_down) {
                 pmmA(0.0);
-            }
-            else if (gamepad2.dpad_up) {
+            } else if (gamepad2.dpad_up) {
                 pmmA(0.55);
             }
 
@@ -188,11 +187,9 @@ public class BlueTeleOp extends LinearOpMode {
             //Makes robot drive toward apriltag
             else if (gamepad1.a) {
                 approachTag(1);
-            }
-            else if (gamepad1.b) {
+            } else if (gamepad1.b) {
                 approachTag(2);
-            }
-            else if (gamepad1.x) {
+            } else if (gamepad1.x) {
                 approachTag(3);
             }
 /*
@@ -367,11 +364,40 @@ public class BlueTeleOp extends LinearOpMode {
     }
 
     private void armMovement(int degree) {
-        while (gamepad1.dpad_right) {
+        while (gamepad2.left_stick_button) {
+            int degreesTurn = TICKS_PER_DEGREE * degree;
             arm.setTargetPosition(TICKS_PER_DEGREE * degree);
             arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             arm.setPower(0.5);
-            // pmmA.setPosition(0.0);
+            //maybe try a sleep? Does it run during sleep? Because that would solve all our problems. Except Apriltags being weird.
+            if (gamepad2.dpad_down) {
+                pmmA.setPosition(0.0);
+            } else if (gamepad2.dpad_up) {
+                arm.setTargetPosition(TICKS_PER_DEGREE * degree);
+                arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                arm.setPower(0.5);
+            } else if (gamepad2.right_stick_button) {
+                break;
+            }
+            break;
+        }
+    }
+
+    private void armMovement2(int degrees) {
+        arm.setTargetPosition(TICKS_PER_DEGREE * degrees);
+        arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        arm.setPower(0.5);
+        sleep(2000);
+        pmmA.setDirection(Servo.Direction.FORWARD);
+        pmmA.setPosition(0.0);
+        sleep(10);
+        arm.setTargetPosition(TICKS_PER_DEGREE * -degrees);
+        arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        arm.setPower(0.5);
+        sleep(2000);
+    }
+
+    // pmmA.setPosition(0.0);
             /*
             if (gamepad2.right_stick_button) {
                 //alternative: reverse directions and move a positive value. Remember to reset positive direction afterwards,
@@ -384,27 +410,52 @@ public class BlueTeleOp extends LinearOpMode {
             }
             */
 
-        }
-    }
+
     private void armStandard(int degree) {
         //maybe a while loop? Condition for end/if is any of the other armMovement starters? And they all end with returning to armStandard?
         //Worried have this method at the beginning will prevent the programs from continuing because of the while loop. 
-        while(Run = true) {
+        while (Run = true) {
             arm.setTargetPosition(TICKS_PER_DEGREE * degree);
             arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             arm.setPower(0.5);
             arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            if (gamepad2.a || gamepad2.b || gamepad2.x || gamepad2.y || gamepad2.dpad_left || gamepad2.dpad_right){
+            if (gamepad2.a || gamepad2.b || gamepad2.x || gamepad2.y || gamepad2.dpad_left || gamepad2.dpad_right) {
                 break;
             }
         }
-}
-    private void pmmF (double turnVal){
+    }
+
+    private void pmmF(double turnVal) {
         Grabber.setDirection(Servo.Direction.REVERSE);
         Grabber.setPosition(turnVal);
     }
-    private void pmmA (double turnVal){
+
+    private void pmmA(double turnVal) {
         pmmA.setDirection(Servo.Direction.REVERSE);
         pmmA.setPosition(turnVal);
+    }
+
+    private void basicMovement(double axial, double lateral, double yaw) {
+        double max;
+        double leftFrontPower = axial + lateral + yaw;
+        double rightFrontPower = axial - lateral - yaw;
+        double leftBackPower = axial - lateral + yaw;
+        double rightBackPower = axial + lateral - yaw;
+
+        max = Math.max(Math.abs(leftFrontPower), Math.abs(rightFrontPower));
+        max = Math.max(max, Math.abs(leftBackPower));
+        max = Math.max(max, Math.abs(rightBackPower));
+
+        if (max > 1.0) {
+            leftFrontPower /= max;
+            rightFrontPower /= max;
+            leftBackPower /= max;
+            rightBackPower /= max;
+        }
+        FrontLeft.setPower(leftFrontPower);
+        FrontRight.setPower(rightFrontPower);
+        RearLeft.setPower(leftBackPower);
+        RearRight.setPower(rightBackPower);
+
     }
 }

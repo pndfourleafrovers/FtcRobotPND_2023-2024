@@ -27,7 +27,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import java.util.concurrent.TimeUnit;
 
 @Autonomous(name="BlueFrontUpRight", group="Autonomous")
-//@Disabled
+@Disabled
 public class BlueFrontUpRight extends LinearOpMode {
     final double DESIRED_DISTANCE = 12.0; //  this is how close the camera should get to the target (inches)
 
@@ -64,8 +64,8 @@ public class BlueFrontUpRight extends LinearOpMode {
     private Servo pmmA;
     private DcMotor arm;
     static final int     TICKS_PER_MOTOR_REV    = 1425;
-    static final double     TICKS_PER_GEAR_REV    = TICKS_PER_MOTOR_REV * 3;
-    static final int TICKS_PER_DEGREE = TICKS_PER_MOTOR_REV/120;
+    static final int     TICKS_PER_GEAR_REV    = TICKS_PER_MOTOR_REV * 3;
+    static final int TICKS_PER_DEGREE = TICKS_PER_GEAR_REV;   // /120;
     int armPosition = 819;
     private ElapsedTime runtime = new ElapsedTime();
     RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.FORWARD;
