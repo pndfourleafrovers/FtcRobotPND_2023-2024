@@ -11,7 +11,6 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
@@ -23,12 +22,12 @@ import org.firstinspires.ftc.teamcode.Mixed.AprilTagFinder;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
-import com.qualcomm.robotcore.hardware.AnalogInput;
+
 import java.util.concurrent.TimeUnit;
 
-@Autonomous(name="autoAllQuads", group="Autonomous")
+@Autonomous(name="FrontTwoQuads", group="Autonomous")
 //@Disabled
-public class autoAllQuads extends LinearOpMode {
+public class FrontTwoQuads extends LinearOpMode {
     final double DESIRED_DISTANCE = 13.5; //  this is how close the camera should get to the target (inches)
     //  Set the GAIN constants to control the relationship between the measured position error, and how much power is
     //  applied to the drive motors to correct the error.
@@ -157,7 +156,13 @@ public class autoAllQuads extends LinearOpMode {
               arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
               arm.setPower(0.5);
               sleep(2000);
-              strafeRobot(distToStrafeAtPark[Position]*((quadrant==1||quadrant==2)?-1:1),.5);
+              if(quadrant==3) {
+                  strafeRobot(distToStrafeAtPark[Position], .5);
+              } else {
+                    int index = (Position == 3) ? 1 : (Position == 1) ? 3 : 2;
+                    double negativeValue = distToStrafeAtPark[index] * -1;
+                    strafeRobot(negativeValue, 0.5);
+              }
               driveForward(8,0.5);
               sleep(3000);
               requestOpModeStop();
@@ -192,7 +197,7 @@ public class autoAllQuads extends LinearOpMode {
         if (detectProp) {
             if (objectDetectedLeft&&quadrant==3||objectDetectedRight&&quadrant==2) {
                 //Position sets which April Tag to look for i.e. 1 for left if on the blue side, 3 is added if the robot is on the red side
-                Position = 1;
+                Position = (quadrant==3)?1:3;
                 //This sets how far the robot strafes during parking
                 turnToHeading(90*((quadrant==2)?-1:1));
                 driveBackward(3.5, 0.5);
@@ -207,7 +212,7 @@ public class autoAllQuads extends LinearOpMode {
                 detectProp = false;
             } else if (objectDetectedRight&&quadrant==3||objectDetectedLeft&&quadrant==2) {
                 //Position sets which April Tag to look for i.e. 3 for right if on the blue side, 3 is added if the robot is on the red side
-                Position = 3;
+                Position = (quadrant==3)?3:1;
                 //This sets how far the robot strafes during parking
                 turnToHeading(-90*((quadrant==2)?-1:1));
                 driveBackward(3.5, 0.5);
