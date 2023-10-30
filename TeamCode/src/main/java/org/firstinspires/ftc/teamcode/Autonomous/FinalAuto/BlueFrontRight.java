@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Autonomous.BlueFront;
+package org.firstinspires.ftc.teamcode.Autonomous.FinalAuto;
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -10,7 +10,6 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
@@ -25,9 +24,9 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.concurrent.TimeUnit;
 
-@Autonomous(name="BlueFrontDownRight", group="Autonomous")
+@Autonomous(name="BlueFrontRight", group="Autonomous")
 //@Disabled
-public class BlueFrontDownRight extends LinearOpMode {
+public class BlueFrontRight extends LinearOpMode {
     final double DESIRED_DISTANCE = 12.0; //  this is how close the camera should get to the target (inches)
 
     //  Set the GAIN constants to control the relationship between the measured position error, and how much power is
@@ -63,14 +62,14 @@ public class BlueFrontDownRight extends LinearOpMode {
     private Servo pmmA;
     private DcMotor arm;
     static final int     TICKS_PER_MOTOR_REV    = 1425;
-    static final double     TICKS_PER_GEAR_REV    = TICKS_PER_MOTOR_REV * 3;
-    static final int TICKS_PER_DEGREE = TICKS_PER_MOTOR_REV/120;
+    static final int     TICKS_PER_GEAR_REV    = TICKS_PER_MOTOR_REV * 3;
+    static final int TICKS_PER_DEGREE = TICKS_PER_GEAR_REV;   // /120;
     int armPosition = 819;
     private ElapsedTime runtime = new ElapsedTime();
-    RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.UP;
-    RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
+    RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.FORWARD;
+    RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.UP;
     RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoDirection, usbDirection);
-    private Servo Grabber;
+    private Servo pmmF;
     private IMU imu = null;      // Control/Expansion Hub IMU
 
     @Override
@@ -81,20 +80,19 @@ public class BlueFrontDownRight extends LinearOpMode {
         double drive = 0;        // Desired forward power/speed (-1 to +1)
         double strafe = 0;        // Desired strafe power/speed (-1 to +1)
         double turn = 0;        // Desired turning power/speed (-1 to +1)
-/*
-        Grabber = hardwareMap.get(Servo.class, "pmmfloor");
+
+        pmmF = hardwareMap.get(Servo.class, "pmmfloor");
         pmmA = hardwareMap.get(Servo.class, "pmmA");
         arm = hardwareMap.get(DcMotor.class, "arm");
 
         arm.setDirection(DcMotor.Direction.FORWARD);
         arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+      //  arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        arm.setPower(0.5);
-        arm.setTargetPosition(TICKS_PER_DEGREE*7);
-*/
-        //sets Grabber to 180 if necessary
-        //Grabber.setPosition(0.66666667);
+
+
+        //sets pmmF to 180 if necessary
+
 
         initAprilTag();// APRIL TAG:
         AprilTagFinder tagSearcher = new AprilTagFinder(aprilTag, telemetry);
@@ -113,6 +111,18 @@ public class BlueFrontDownRight extends LinearOpMode {
 
         waitForStart();
         while (opModeIsActive()) {
+
+
+            arm.setTargetPosition(TICKS_PER_DEGREE * 7);
+            arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            arm.setPower(0.5);
+
+            pmmA.setDirection(Servo.Direction.FORWARD);
+            pmmA.setPosition(0.55);
+
+            pmmF.setDirection(Servo.Direction.REVERSE);
+            pmmF.setPosition(0.62);
+
             turnToHeading(0);
             driveBackward(24, 0.5);
             lookForProp = true;
@@ -125,30 +135,33 @@ public class BlueFrontDownRight extends LinearOpMode {
                 driveForward(5, 0.5);
 
                 //Release Grab
-                //Grabber.setPosition(0);
+                pmmF.setDirection(Servo.Direction.REVERSE);
+                pmmF.setPosition(0);
 
-                driveBackward(5, 0.8);
-                turnToHeading(90);
-                APRIL = true;
+                driveForward(6.0, .5);
+                turnToHeading(8);
+
+                driveForward(20, .5);
+                turnToHeading(-90);
+
+                driveForward(26, 0.5);
+                turnToHeading(-180);
+
+                driveForward(17, 0.5);
+                turnToHeading(-90);
                 //April detections after this
             }
             else if (objectDetectedRight) {
                 Position = 3;
                 turnToHeading(90);
-                driveForward(5, 0.5);
+                driveForward(3.5, 0.5);
 
                 //Release Grab
-                //Grabber.setPosition(0);
+                pmmF.setDirection(Servo.Direction.REVERSE);
+                pmmF.setPosition(0);
 
-                driveBackward(5, .8);
-                turnToHeading(0);
-
-                driveBackward(20, .8);
-                turnToHeading(90);
-
-                driveForward(20, 1);
-                turnToHeading(45);
-                APRIL = true;
+                driveBackward(5, 0.8);
+                turnToHeading(-90);
                 //April detection after this
             }
             else {
@@ -157,16 +170,15 @@ public class BlueFrontDownRight extends LinearOpMode {
                 driveForward(5, 0.5);
 
                 //Release Grab
-                //Grabber.setPosition(0);
+                pmmF.setDirection(Servo.Direction.REVERSE);
+                pmmF.setPosition(0);
 
                 driveBackward(5, .8);
                 turnToHeading(90);
-                APRIL = true;
                 //April detection after this
             }
 //APRIL TAG
 
-            Position = Position;
             while(APRIL = true) {
                 DESIRED_TAG_ID = Position; //plus 3 for red only
                 detectedTag = null; // APRIL TAG:
@@ -207,7 +219,7 @@ public class BlueFrontDownRight extends LinearOpMode {
             */
             //Parking Procedure
             turnToHeading(180);
-            driveForward(20, 0.5);
+            driveForward(25, 0.5);
 
             turnToHeading(90);
             driveForward(5, .8);

@@ -63,14 +63,14 @@ public class RedFrontDownRight extends LinearOpMode {
     private Servo pmmA;
     private DcMotor arm;
     static final int     TICKS_PER_MOTOR_REV    = 1425;
-    static final double     TICKS_PER_GEAR_REV    = TICKS_PER_MOTOR_REV * 3;
-    static final int TICKS_PER_DEGREE = TICKS_PER_MOTOR_REV/120;
+    static final int    TICKS_PER_GEAR_REV    = TICKS_PER_MOTOR_REV * 3;
+    static final int TICKS_PER_DEGREE = TICKS_PER_GEAR_REV;   // /120;
     int armPosition = 819;
     private ElapsedTime runtime = new ElapsedTime();
     RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.UP;
     RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
     RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoDirection, usbDirection);
-    private Servo Grabber;
+    private Servo pmmF;
     private IMU imu = null;      // Control/Expansion Hub IMU
 
     @Override
@@ -82,7 +82,7 @@ public class RedFrontDownRight extends LinearOpMode {
         double strafe = 0;        // Desired strafe power/speed (-1 to +1)
         double turn = 0;        // Desired turning power/speed (-1 to +1)
 /*
-        Grabber = hardwareMap.get(Servo.class, "pmmfloor");
+        pmmF = hardwareMap.get(Servo.class, "pmmfloor");
         pmmA = hardwareMap.get(Servo.class, "pmmA");
         arm = hardwareMap.get(DcMotor.class, "arm");
 
@@ -93,8 +93,8 @@ public class RedFrontDownRight extends LinearOpMode {
         arm.setPower(0.5);
         arm.setTargetPosition(TICKS_PER_DEGREE*7);
 */
-        //sets Grabber to 180 if necessary
-        //Grabber.setPosition(0.66666667);
+        //sets pmmF to 180 if necessary
+        //pmmF.setPosition(0.66666667);
 
         initAprilTag();// APRIL TAG:
         AprilTagFinder tagSearcher = new AprilTagFinder(aprilTag, telemetry);
@@ -125,7 +125,7 @@ public class RedFrontDownRight extends LinearOpMode {
                 driveForward(5, 0.5);
 
                 //Release Grab
-                //Grabber.setPosition(0);
+                //pmmF.setPosition(0);
 
                 driveBackward(5, 0.8);
                 turnToHeading(-90);
@@ -138,7 +138,7 @@ public class RedFrontDownRight extends LinearOpMode {
                 driveForward(5, 0.5);
 
                 //Release Grab
-                //Grabber.setPosition(0);
+                //pmmF.setPosition(0);
 
                 driveBackward(5, .8);
                 turnToHeading(0);
@@ -157,7 +157,7 @@ public class RedFrontDownRight extends LinearOpMode {
                 driveForward(5, 0.5);
 
                 //Release Grab
-                //Grabber.setPosition(0);
+                //pmmF.setPosition(0);
 
                 driveBackward(5, .8);
                 turnToHeading(-90);
