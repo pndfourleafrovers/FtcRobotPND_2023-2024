@@ -21,9 +21,9 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import java.util.concurrent.TimeUnit;
 
 
-@TeleOp(name="BlueTeleOp", group="TeleOp")
+@TeleOp(name="BlueTeleOp2", group="TeleOp")
 //@Disabled
-public class BlueTeleOp extends LinearOpMode {
+public class BlueTeleOp2 extends LinearOpMode {
 
     // Declare OpMode members for each of the 4 motors.
     final double DESIRED_DISTANCE = 13.5; //  this is how close the camera should get to the target (inches)
@@ -144,25 +144,26 @@ public class BlueTeleOp extends LinearOpMode {
 
              */
             if (gamepad2.right_bumper) {
-                armMovement(7);    //0
+                armMovement(7);    //
             }
             if (gamepad2.dpad_right) {
-                armMovement(207);    //200   207
+                armMovement(207);    //
             }
             if (gamepad2.dpad_down) {
-                armMovement(178);   //171     178
+                armMovement(178);   //
             }
             if (gamepad2.dpad_left) {
-                armMovement(150);  //143      150
+                armMovement(150);  //
             }
             if (gamepad2.dpad_up) {
-                armMovement(140);  //113       120
+                armMovement(140);  //
             }
             if (gamepad2.left_bumper) {
-                armMovement(0);   //-7          0
+                armMovement(0);   //
+                pmmF(0.0); // makes it so moving the arm to zero automatically retracts pmmF. Remove if perferable.
             }
             if (gamepad2.left_stick_button) {
-                armMovement(90);   //-7          0
+                armMovement(90);   //
             }
 
             //Manipulates pmmF
@@ -170,8 +171,14 @@ public class BlueTeleOp extends LinearOpMode {
                 pmmF(0.0);
             }
             if (gamepad2.x) {
-                pmmF(0.62);
+                if(currentDegree >= 7){
+                    pmmF(0.62);
+                } else{
+                    pmmF(0.0);
+                }
             }
+
+            //ensures pmmF cannot be closed if pmmA is on the ground. See if else necessary under any circumstances.
 
 
             //Manipulates pmmA
@@ -182,7 +189,7 @@ public class BlueTeleOp extends LinearOpMode {
                 pmmA(0.55);
             }
 
-
+            //elses prevent changing Apriltag lock on until previous is finished or cancelled
             //Makes robot drive toward apriltag
             if (gamepad1.x) {
                 approachTag(1);
@@ -192,7 +199,7 @@ public class BlueTeleOp extends LinearOpMode {
                 approachTag(3);
             }
         }
-
+// only difference in red tele is the detected april tags.
 
         // Show the elapsed game time and wheel power.
         telemetry.addData("Status", "Run Time: " + runtime.toString());
@@ -308,7 +315,7 @@ public class BlueTeleOp extends LinearOpMode {
         }
 
     }
-
+// not really sure what is wrong with april. And it's late.
     private void approachTag(int DESIRED_TAG_ID) {
         while (APRIL = true) {
             detectedTag = null; // APRIL TAG:
@@ -330,7 +337,10 @@ public class BlueTeleOp extends LinearOpMode {
 
             // Apply desired axes motions to the drivetrain.
             moveAprilRobot(drive, strafe, turn);
-            if (gamepad1.right_stick_button) {
+            if(detectedTag != null && (detectedTag.ftcPose.range - DESIRED_DISTANCE) <= 0.05){
+                break;
+            }
+            else if (gamepad1.right_stick_button) {       //not sure if this one works. But I think we want a system we can leave anytime.
                 break;
             }
             break;
@@ -350,7 +360,7 @@ public class BlueTeleOp extends LinearOpMode {
             }
             break;
         }
-    //    return currentDegree;
+        //    return currentDegree;
     }
 
 
@@ -371,13 +381,13 @@ public class BlueTeleOp extends LinearOpMode {
     private void pmmF(double turnValF) {
         pmmF.setDirection(Servo.Direction.REVERSE);
         pmmF.setPosition(turnValF);
-      //  return turnValF;
+        //  return turnValF;
     }
 
     private void pmmA(double turnValA) {
         pmmA.setDirection(Servo.Direction.FORWARD);
         pmmA.setPosition(turnValA);
-    //    return turnValA;
+        //    return turnValA;
     }
 
 }
