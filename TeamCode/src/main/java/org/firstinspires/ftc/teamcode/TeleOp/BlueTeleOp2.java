@@ -18,6 +18,7 @@ import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 
@@ -53,16 +54,17 @@ public class BlueTeleOp2 extends LinearOpMode {
     private double turn = 0;
     private Servo pmmA;
     private DcMotor arm;
-    static final int     TICKS_PER_MOTOR_REV    = 1425;
-    static final int     TICKS_PER_GEAR_REV    = TICKS_PER_MOTOR_REV * 3;
-    static final int TICKS_PER_DEGREE = TICKS_PER_GEAR_REV/360;   //  /120;
+    static final int TICKS_PER_MOTOR_REV = 1425;
+    static final int TICKS_PER_GEAR_REV = TICKS_PER_MOTOR_REV * 3;
+    static final int TICKS_PER_DEGREE = TICKS_PER_GEAR_REV / 360;   //  /120;
     int armPosition = 819;
     private Servo pmmF;
     boolean APRIL = true;
     AprilTagFinder tagSearcher = new AprilTagFinder(aprilTag, telemetry);
     boolean Run = true;
     int currentDegree = 0;
-
+    int pmmFCounter = 0;
+    int pmmACounter = 0;
 
     @Override
     public void runOpMode() {
@@ -103,16 +105,16 @@ public class BlueTeleOp2 extends LinearOpMode {
             double max;
 
             // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
-            double axial   = -gamepad1.left_stick_y;  // Note: pushing stick forward gives negative value
-            double lateral =  gamepad1.left_stick_x;
-            double yaw     =  gamepad1.right_stick_x;
+            double axial = -gamepad1.left_stick_y;  // Note: pushing stick forward gives negative value
+            double lateral = gamepad1.left_stick_x;
+            double yaw = gamepad1.right_stick_x;
 
             // Combine the joystick requests for each axis-motion to determine each wheel's power.
             // Set up a variable for each drive wheel to save the power level for telemetry.
-            double leftFrontPower  = axial + lateral + yaw;
+            double leftFrontPower = axial + lateral + yaw;
             double rightFrontPower = axial - lateral - yaw;
-            double leftBackPower   = axial - lateral + yaw;
-            double rightBackPower  = axial + lateral - yaw;
+            double leftBackPower = axial - lateral + yaw;
+            double rightBackPower = axial + lateral - yaw;
 
             // Normalize the values so no wheel power exceeds 100%
             // This ensures that the robot maintains the desired motion.
@@ -121,10 +123,18 @@ public class BlueTeleOp2 extends LinearOpMode {
             max = Math.max(max, Math.abs(rightBackPower));
 
             if (max > 1.0) {
-                leftFrontPower  /= max;
+                leftFrontPower /= max;
                 rightFrontPower /= max;
-                leftBackPower   /= max;
-                rightBackPower  /= max;
+                leftBackPower /= max;
+                rightBackPower /= max;
+                //adjustable speed
+            } else if (gamepad1.right_bumper) {
+                if (max >= 0.2) {
+                    leftFrontPower /= max;
+                    rightFrontPower /= max;
+                    leftBackPower /= max;
+                    rightBackPower /= max;
+                }
             }
             FrontLeft.setPower(leftFrontPower);
             FrontRight.setPower(rightFrontPower);
@@ -167,38 +177,45 @@ public class BlueTeleOp2 extends LinearOpMode {
             }
 
             //Manipulates pmmF
+            if (gamepad2.x) {
+                if (currentDegree >= 7)
+                    pmmF(0.62);
+            }   else if (currentDegree <= 6) {
+                    pmmF(0.0);
+            }
             if (gamepad2.y) {
                 pmmF(0.0);
             }
-            if (gamepad2.x) {
-                if(currentDegree >= 7){
-                    pmmF(0.62);
-                } else{
-                    pmmF(0.0);
-                }
-            }
-
             //ensures pmmF cannot be closed if pmmA is on the ground. See if else necessary under any circumstances.
-
+          //  int pmmACounter = 0;
 
             //Manipulates pmmA
-            if (gamepad2.b) {
-                pmmA(0.0);
-            }
-            if (gamepad2.a) {
-                pmmA(0.55);
-            }
-
-            //elses prevent changing Apriltag lock on until previous is finished or cancelled
-            //Makes robot drive toward apriltag
-            if (gamepad1.x) {
-                approachTag(1);
-            } else if (gamepad1.y) {
-                approachTag(2);
-            } else if (gamepad1.b) {
-                approachTag(3);
-            }
         }
+        if (gamepad2.a) {
+            pmmA(0.55);
+        }
+        if (gamepad2.b) {
+            pmmA(0.0);
+        }
+
+        //elses prevent changing Apriltag lock on until previous is finished or cancelled
+        //Makes robot drive toward apriltag
+        if (gamepad1.x) {
+            approachTag(1);
+        } else if (gamepad1.y) {
+            approachTag(2);
+        } else if (gamepad1.b) {
+            approachTag(3);
+        }
+//new April tag code to test.
+        if (gamepad1.dpad_left) {
+            approachTag2(1);
+        } else if (gamepad1.dpad_up) {
+            approachTag2(2);
+        } else if (gamepad1.dpad_right) {
+            approachTag2(3);
+        }
+
 // only difference in red tele is the detected april tags.
 
         // Show the elapsed game time and wheel power.
@@ -208,7 +225,6 @@ public class BlueTeleOp2 extends LinearOpMode {
         telemetry.addData("Servo Position", pmmF.getPosition());
         telemetry.update();
     }
-
 
     public void moveAprilRobot(double x, double y, double yaw) {
         // Calculate wheel powers.
@@ -315,7 +331,8 @@ public class BlueTeleOp2 extends LinearOpMode {
         }
 
     }
-// not really sure what is wrong with april. And it's late.
+
+    // not really sure what is wrong with april. And it's late.
     private void approachTag(int DESIRED_TAG_ID) {
         while (APRIL = true) {
             detectedTag = null; // APRIL TAG:
@@ -337,15 +354,62 @@ public class BlueTeleOp2 extends LinearOpMode {
 
             // Apply desired axes motions to the drivetrain.
             moveAprilRobot(drive, strafe, turn);
-            if(detectedTag != null && (detectedTag.ftcPose.range - DESIRED_DISTANCE) <= 0.05){
+            if (detectedTag != null && (detectedTag.ftcPose.range - DESIRED_DISTANCE) <= 0.05) {
                 break;
-            }
-            else if (gamepad1.right_stick_button) {       //not sure if this one works. But I think we want a system we can leave anytime.
+            } else if (gamepad1.right_stick_button) {       //not sure if this one works. But I think we want a system we can leave anytime.
                 break;
             }
             break;
         }
     }
+    boolean targetFound     = false;
+    private AprilTagDetection desiredTag = null;
+    private void approachTag2(int DESIRED_TAG_ID) {
+        while (opModeIsActive()) {
+            targetFound = false;
+            desiredTag = null;
+
+            // Step through the list of detected tags and look for a matching tag
+            List<AprilTagDetection> currentDetections = aprilTag.getDetections();
+            for (AprilTagDetection detection : currentDetections) {
+                // Look to see if we have size info on this tag.
+                if (detection.metadata != null) {
+                    //  Check to see if we want to track towards this tag.
+                    AprilTagDetection detectedTag = tagSearcher.findTag(DESIRED_TAG_ID);
+                    // If the AprilTag is detected the robot drives to it
+                    if (detectedTag != null) {
+                        // Yes, we want to use this tag.
+                        desiredTag = detection;
+                        double rangeError = (desiredTag.ftcPose.range - DESIRED_DISTANCE);
+                        double headingError = desiredTag.ftcPose.bearing;
+                        double yawError = desiredTag.ftcPose.yaw;
+
+                        // Use the speed and turn "gains" to calculate how we want the robot to move.
+                        drive = Range.clip(rangeError * SPEED_GAIN, -MAX_AUTO_SPEED, MAX_AUTO_SPEED);
+                        turn = Range.clip(headingError * TURN_GAIN, -MAX_AUTO_TURN, MAX_AUTO_TURN);
+                        strafe = Range.clip(-yawError * STRAFE_GAIN, -MAX_AUTO_STRAFE, MAX_AUTO_STRAFE);
+
+                        telemetry.addData("Auto", "Drive %5.2f, Strafe %5.2f, Turn %5.2f ", drive, strafe, turn);
+                        break;  // don't look any further.
+                    } else {
+                        // This tag is in the library, but we do not want to track it right now.
+                        telemetry.addData("Skipping", "Tag ID %d is not desired", detection.id);
+                    }
+                } else {
+                    // This tag is NOT in the library, so we don't have enough information to track to it.
+                    telemetry.addData("Unknown", "Tag ID %d is not in TagLibrary", detection.id);
+                }
+            }
+            moveAprilRobot(drive, strafe, turn);
+            if (detectedTag != null && (detectedTag.ftcPose.range - DESIRED_DISTANCE) <= 0.05) {
+                break;
+            } else if (gamepad1.right_stick_button) {       //not sure if this one works. But I think we want a system we can leave anytime.
+                break;
+            }
+            break;
+        }
+    }
+
 
     private void armMovement(int degree) {
 
@@ -360,34 +424,49 @@ public class BlueTeleOp2 extends LinearOpMode {
             }
             break;
         }
-        //    return currentDegree;
-    }
 
-
-    private void armMovement2(int degrees) {
-        arm.setTargetPosition(TICKS_PER_DEGREE * degrees);
-        arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        arm.setPower(0.5);
-        sleep(2000);
-        pmmA.setDirection(Servo.Direction.FORWARD);
-        pmmA.setPosition(0.0);
-        sleep(10);
-        arm.setTargetPosition(TICKS_PER_DEGREE * -degrees);
-        arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        arm.setPower(0.5);
-        sleep(2000);
     }
 
     private void pmmF(double turnValF) {
-        pmmF.setDirection(Servo.Direction.REVERSE);
-        pmmF.setPosition(turnValF);
-        //  return turnValF;
+                pmmF.setDirection(Servo.Direction.REVERSE);
+                pmmF.setPosition(turnValF);
     }
 
     private void pmmA(double turnValA) {
-        pmmA.setDirection(Servo.Direction.FORWARD);
-        pmmA.setPosition(turnValA);
-        //    return turnValA;
+            pmmA.setDirection(Servo.Direction.FORWARD);
+            pmmA.setPosition(turnValA);
     }
 
+/*
+    private void pmmF(double turnValF) {
+        if (pmmFCounter == 0) {
+            if(currentDegree >= 7) {
+                pmmF.setDirection(Servo.Direction.REVERSE);
+                pmmF.setPosition(turnValF);
+                pmmFCounter = pmmFCounter + 1;
+            }
+            else{
+                pmmF.setDirection(Servo.Direction.REVERSE);
+                pmmF.setPosition(0.0);
+                pmmFCounter = pmmFCounter - 1;
+            }
+        } else if (pmmFCounter == 1) {
+            pmmF.setDirection(Servo.Direction.REVERSE);
+            pmmF.setPosition(0.0);
+            pmmFCounter = pmmFCounter - 1;
+        }
+    }
+
+    private void pmmA(double turnValA) {
+        if (pmmACounter == 0) {
+            pmmA.setDirection(Servo.Direction.REVERSE);
+            pmmA.setPosition(turnValA);
+            pmmACounter = pmmACounter + 1;
+        } else if (pmmACounter == 1) {
+            pmmA.setDirection(Servo.Direction.REVERSE);
+            pmmA.setPosition(0.0);
+            pmmACounter = pmmACounter - 1;
+        }
+    }
+*/
 }
