@@ -137,6 +137,7 @@ public class AllQuads extends LinearOpMode {
                 rightFrontDrive.setPower(0);
                 leftBackDrive.setPower(0);
                 rightBackDrive.setPower(0);
+                //Here we are moving slightly to the left or right of the april tag to avoid that the pixel bounces out of place
                 if (DESIRED_TAG_ID==6 || DESIRED_TAG_ID ==3){
                     strafeRight(2,strafePwr);
                 } else if (DESIRED_TAG_ID==4 || DESIRED_TAG_ID ==1){
@@ -163,24 +164,23 @@ public class AllQuads extends LinearOpMode {
               arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
               arm.setPower(0.5);
               sleep(2000);
-
+                //This is where to park if we are in quadrant 1 i.e. front of the blue then park in the middle
               if (quadrant==1){
                  strafeRight(distToStrafeAtPark[Position], strafePwr);
-              } else if (quadrant==2) {
+              } else if (quadrant==2) { //park in the corner, since the travel from 3 is the longest assign it 1 in the array distToStrafeAtPark because it is the largest number
                   strafeLeft(distToStrafeAtPark[(Position==1)?3:(Position==3)?1:Position],strafePwr);
               } else if (quadrant==3) {
                   strafeRight(distToStrafeAtPark[Position], strafePwr);
               } else {
                   strafeLeft(distToStrafeAtPark[(Position==1)?3:(Position==3)?1:Position],strafePwr);
               }
-
+                //final drive before parking in the backstage
               driveForward(10,fwdPwr);
-              sleep(3000);
               requestOpModeStop();
             }
                 //THIS IS THE START OF AUTONOMOUS
             if (startOfAutonomous) {
-                //The robot is at the wall at the start of Autonomous
+                //The robot is at the wall at the start of Autonomous. Remember that the direction of the IMU sets the 0 and the start of each run.
                 // Lift the ARM 7 degrees off of the ground and hold it there
                 arm.setTargetPosition(TICKS_PER_DEGREE * 7);
                 arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
