@@ -161,7 +161,7 @@ public class AllQuads extends LinearOpMode {
               sleep(1000);
               arm.setTargetPosition(TICKS_PER_DEGREE * 7);
               arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-              arm.setPower(0.5);
+              arm.setPower(0.1);
               sleep(2000);
                 //This is where to park if we are in quadrant 1 i.e. front of the blue then park in the middle
               if (quadrant==1){
@@ -175,6 +175,11 @@ public class AllQuads extends LinearOpMode {
               }
                 //final drive before parking in the backstage
               driveForward(10,fwdPwr);
+              //arm.setTargetPosition(TICKS_PER_DEGREE * 0);
+              //arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+              //arm.setPower(0.1);
+              //arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+              //arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
               requestOpModeStop();
             }
                 //THIS IS THE START OF AUTONOMOUS
