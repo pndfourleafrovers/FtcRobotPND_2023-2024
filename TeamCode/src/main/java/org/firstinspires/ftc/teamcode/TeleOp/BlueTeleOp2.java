@@ -4,7 +4,6 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
@@ -13,7 +12,7 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDir
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl;
-import org.firstinspires.ftc.teamcode.Mixed.AprilTagFinder;
+import org.firstinspires.ftc.teamcode.Autonomous.AprilTagFinder;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
@@ -23,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 
 
 @TeleOp(name="BlueTeleOp2", group="TeleOp")
-//@Disabled
+@Disabled
 public class BlueTeleOp2 extends LinearOpMode {
 
     // Declare OpMode members for each of the 4 motors.
@@ -44,6 +43,9 @@ public class BlueTeleOp2 extends LinearOpMode {
     private DcMotor RearLeft;
     private DcMotor FrontRight;
     private DcMotor RearRight;
+    private boolean slowMode = false;
+    private double powerMultiplier = 1.0;
+
     private static final boolean USE_WEBCAM = true;
     private VisionPortal visionPortal;               // Used to manage the video source.
     private AprilTagProcessor aprilTag;              // Used for managing the AprilTag detection process.
@@ -122,25 +124,21 @@ public class BlueTeleOp2 extends LinearOpMode {
             max = Math.max(max, Math.abs(leftBackPower));
             max = Math.max(max, Math.abs(rightBackPower));
 
-            if (max > 1.0) {
-                leftFrontPower /= max;
-                rightFrontPower /= max;
-                leftBackPower /= max;
-                rightBackPower /= max;
-                //adjustable speed
-            } else if (gamepad1.right_bumper) {
-                if (max >= 0.2) {
-                    leftFrontPower /= max;
-                    rightFrontPower /= max;
-                    leftBackPower /= max;
-                    rightBackPower /= max;
+            if (gamepad1.right_bumper) {
+                if (!slowMode) {
+                    slowMode = true;
+                    powerMultiplier = 0.2;
+                }
+            } else {
+                if (slowMode) {
+                    slowMode = false;
+                    powerMultiplier = 1.0;
                 }
             }
-            FrontLeft.setPower(leftFrontPower);
-            FrontRight.setPower(rightFrontPower);
-            RearLeft.setPower(leftBackPower);
-            RearRight.setPower(rightBackPower);
-
+            FrontLeft.setPower(leftFrontPower * powerMultiplier);
+            FrontRight.setPower(rightFrontPower * powerMultiplier);
+            RearLeft.setPower(leftBackPower * powerMultiplier);
+            RearRight.setPower(rightBackPower * powerMultiplier);
 
             //Might have to add (subtract?) seven degrees to each, -7 for zero, to account for the 7 movement in the beginning.
             //See if program works like this first
@@ -181,13 +179,13 @@ public class BlueTeleOp2 extends LinearOpMode {
                 if (currentDegree >= 7)
                     pmmF(0.62);
             }   else if (currentDegree <= 6) {
-                    pmmF(0.0);
+                pmmF(0.0);
             }
             if (gamepad2.y) {
                 pmmF(0.0);
             }
             //ensures pmmF cannot be closed if pmmA is on the ground. See if else necessary under any circumstances.
-          //  int pmmACounter = 0;
+            //  int pmmACounter = 0;
 
             //Manipulates pmmA
         }
@@ -428,13 +426,13 @@ public class BlueTeleOp2 extends LinearOpMode {
     }
 
     private void pmmF(double turnValF) {
-                pmmF.setDirection(Servo.Direction.REVERSE);
-                pmmF.setPosition(turnValF);
+        pmmF.setDirection(Servo.Direction.REVERSE);
+        pmmF.setPosition(turnValF);
     }
 
     private void pmmA(double turnValA) {
-            pmmA.setDirection(Servo.Direction.FORWARD);
-            pmmA.setPosition(turnValA);
+        pmmA.setDirection(Servo.Direction.FORWARD);
+        pmmA.setPosition(turnValA);
     }
 
 /*

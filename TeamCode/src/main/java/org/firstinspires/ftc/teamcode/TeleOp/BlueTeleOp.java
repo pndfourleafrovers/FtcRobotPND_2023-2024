@@ -4,25 +4,17 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl;
-import org.firstinspires.ftc.teamcode.Mixed.AprilTagFinder;
+import org.firstinspires.ftc.teamcode.Autonomous.AprilTagFinder;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
-import java.util.concurrent.TimeUnit;
-
 
 @TeleOp(name="BlueTeleOp", group="TeleOp")
-//@Disabled
+@Disabled
 public class BlueTeleOp extends LinearOpMode {
 
     // Declare OpMode members for each of the 4 motors.
@@ -41,6 +33,8 @@ public class BlueTeleOp extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotor FrontLeft;
     private DcMotor RearLeft;
+    private boolean slowMode = false;
+    private double powerMultiplier = 1.0;
     private DcMotor FrontRight;
     private DcMotor RearRight;
     private static final boolean USE_WEBCAM = true;
@@ -53,6 +47,7 @@ public class BlueTeleOp extends LinearOpMode {
     private double turn = 0;
     private Servo pmmA;
     private DcMotor arm;
+    int currentDegree;
     static final int     TICKS_PER_MOTOR_REV    = 1425;
     static final int     TICKS_PER_GEAR_REV    = TICKS_PER_MOTOR_REV * 3;
     static final int TICKS_PER_DEGREE = TICKS_PER_GEAR_REV/360;   //  /120;
@@ -61,7 +56,6 @@ public class BlueTeleOp extends LinearOpMode {
     boolean APRIL = true;
     AprilTagFinder tagSearcher = new AprilTagFinder(aprilTag, telemetry);
     boolean Run = true;
-    int currentDegree = 0;
 
 
     @Override
@@ -82,13 +76,10 @@ public class BlueTeleOp extends LinearOpMode {
         FrontRight.setDirection(DcMotor.Direction.FORWARD);
         RearRight.setDirection(DcMotor.Direction.FORWARD);
 
-        initAprilTag();// APRIL TAG:
         AprilTagFinder tagSearcher = new AprilTagFinder(aprilTag, telemetry);
         initHardware();
 
 
-        if (USE_WEBCAM) // APRIL TAG:
-            setManualExposure(6, 250);
 
         // Wait for the game to start (driver presses PLAY)
         telemetry.addData("Status", "Initialized");
@@ -120,16 +111,21 @@ public class BlueTeleOp extends LinearOpMode {
             max = Math.max(max, Math.abs(leftBackPower));
             max = Math.max(max, Math.abs(rightBackPower));
 
-            if (max > 1.0) {
-                leftFrontPower  /= max;
-                rightFrontPower /= max;
-                leftBackPower   /= max;
-                rightBackPower  /= max;
+            if (gamepad1.right_bumper) {
+                if (!slowMode) {
+                    slowMode = true;
+                    powerMultiplier = 0.2;
+                }
+            } else {
+                if (slowMode) {
+                    slowMode = false;
+                    powerMultiplier = 1.0;
+                }
             }
-            FrontLeft.setPower(leftFrontPower);
-            FrontRight.setPower(rightFrontPower);
-            RearLeft.setPower(leftBackPower);
-            RearRight.setPower(rightBackPower);
+            FrontLeft.setPower(leftFrontPower * powerMultiplier);
+            FrontRight.setPower(rightFrontPower * powerMultiplier);
+            RearLeft.setPower(leftBackPower * powerMultiplier);
+            RearRight.setPower(rightBackPower * powerMultiplier);
 
 
             //Might have to add (subtract?) seven degrees to each, -7 for zero, to account for the 7 movement in the beginning.
@@ -150,10 +146,10 @@ public class BlueTeleOp extends LinearOpMode {
                 armMovement(207);    //200   207
             }
             if (gamepad2.dpad_down) {
-                armMovement(178);   //171     178
+                armMovement(193);   //171     178
             }
             if (gamepad2.dpad_left) {
-                armMovement(150);  //143      150
+                armMovement(178);  //143      150
             }
             if (gamepad2.dpad_up) {
                 armMovement(140);  //113       120
@@ -184,13 +180,7 @@ public class BlueTeleOp extends LinearOpMode {
 
 
             //Makes robot drive toward apriltag
-            if (gamepad1.x) {
-                approachTag(1);
-            } else if (gamepad1.y) {
-                approachTag(2);
-            } else if (gamepad1.b) {
-                approachTag(3);
-            }
+
         }
 
 
@@ -203,58 +193,7 @@ public class BlueTeleOp extends LinearOpMode {
     }
 
 
-    public void moveAprilRobot(double x, double y, double yaw) {
-        // Calculate wheel powers.
-        double leftFrontPow = x - y - yaw;
-        double rightFrontPow = x + y + yaw;
-        double leftBackPow = x + y - yaw;
-        double rightBackPow = x - y + yaw;
 
-        // Normalize wheel powers to be less than 1.0
-        double max = Math.max(Math.abs(leftFrontPow), Math.abs(rightFrontPow));
-        max = Math.max(max, Math.abs(leftBackPow));
-        max = Math.max(max, Math.abs(rightBackPow));
-
-        if (max > 1.0) {
-            leftFrontPow /= max;
-            rightFrontPow /= max;
-            leftBackPow /= max;
-            rightBackPow /= max;
-        }
-
-        // Send powers to the wheels.
-        FrontLeft.setPower(leftFrontPow);
-        FrontRight.setPower(rightFrontPow);
-        RearLeft.setPower(leftBackPow);
-        RearRight.setPower(rightBackPow);
-    }
-
-    private void initAprilTag() {
-        // Create the AprilTag processor by using a builder.
-        aprilTag = new AprilTagProcessor.Builder().build();
-
-        // Adjust Image Decimation to trade-off detection-range for detection-rate.
-        // eg: Some typical detection data using a Logitech C920 WebCam
-        // Decimation = 1 ..  Detect 2" Tag from 10 feet away at 10 Frames per second
-        // Decimation = 2 ..  Detect 2" Tag from 6  feet away at 22 Frames per second
-        // Decimation = 3 ..  Detect 2" Tag from 4  feet away at 30 Frames Per Second
-        // Decimation = 3 ..  Detect 5" Tag from 10 feet away at 30 Frames Per Second
-        // Note: Decimation can be changed on-the-fly to adapt during a match.
-        aprilTag.setDecimation(2);
-
-        // Create the vision portal by using a builder.
-        if (USE_WEBCAM) {
-            visionPortal = new VisionPortal.Builder()
-                    .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
-                    .addProcessor(aprilTag)
-                    .build();
-        } else {
-            visionPortal = new VisionPortal.Builder()
-                    .setCamera(BuiltinCameraDirection.BACK)
-                    .addProcessor(aprilTag)
-                    .build();
-        }
-    }
 
     private void initHardware() {
         // Initialize the hardware variables. Note that the strings used here as parameters
@@ -274,72 +213,12 @@ public class BlueTeleOp extends LinearOpMode {
         RearRight.setDirection(DcMotor.Direction.FORWARD);
     }
 
-    private void setManualExposure(int exposureMS, int gain) {
-        // THIS IS FOR THE APRIL TAG
-        // Wait for the camera to be open, then use the controls
 
-        if (visionPortal == null) {
-            return;
-        }
 
-        // Make sure camera is streaming before we try to set the exposure controls
-        if (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING) {
-            telemetry.addData("Camera", "Waiting");
-            telemetry.update();
-            while (!isStopRequested() && (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING)) {
-                sleep(20);
-            }
-            telemetry.addData("Camera", "Ready");
-            telemetry.update();
-        }
-
-        // Set camera controls unless we are stopping.
-        if (!isStopRequested()) {
-            ExposureControl exposureControl = visionPortal.getCameraControl(ExposureControl.class);
-            if (exposureControl.getMode() != ExposureControl.Mode.Manual) {
-                exposureControl.setMode(ExposureControl.Mode.Manual);
-                sleep(50);
-            }
-            exposureControl.setExposure((long) exposureMS, TimeUnit.MILLISECONDS);
-            sleep(20);
-            GainControl gainControl = visionPortal.getCameraControl(GainControl.class);
-            gainControl.setGain(gain);
-            sleep(20);
-        }
-
-    }
-
-    private void approachTag(int DESIRED_TAG_ID) {
-        while (APRIL = true) {
-            detectedTag = null; // APRIL TAG:
-            //The line below creates a instance of the Class tagSearcher which is defined in file AprilTagSearcher
-            AprilTagDetection detectedTag = tagSearcher.findTag(DESIRED_TAG_ID);
-            // If the AprilTag is detected the robot drives to it
-            if (detectedTag != null) {
-                // Determine heading, range and Yaw (tag image rotation) error so we can use them to control the robot automatically.
-                double rangeError = (detectedTag.ftcPose.range - DESIRED_DISTANCE);
-                double headingError = detectedTag.ftcPose.bearing;
-                double yawError = detectedTag.ftcPose.yaw;
-                // Use the speed and turn "gains" to calculate how we want the robot to move.
-                drive = Range.clip(rangeError * SPEED_GAIN, -MAX_AUTO_SPEED, MAX_AUTO_SPEED);
-                turn = Range.clip(headingError * TURN_GAIN, -MAX_AUTO_TURN, MAX_AUTO_TURN);
-                strafe = Range.clip(-yawError * STRAFE_GAIN, -MAX_AUTO_STRAFE, MAX_AUTO_STRAFE);
-                telemetry.addData("Auto", "Drive %5.2f, Strafe %5.2f, Turn %5.2f ", drive, strafe, turn);
-            }
-            telemetry.update();
-
-            // Apply desired axes motions to the drivetrain.
-            moveAprilRobot(drive, strafe, turn);
-            if (gamepad1.right_stick_button) {
-                break;
-            }
-            break;
-        }
-    }
-
-    private void armMovement(int degree) {
+    private int armMovement(int degree) {
 
         while (Run = true) {
+
             arm.setTargetPosition(TICKS_PER_DEGREE * (degree - currentDegree));
             arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             arm.setPower(0.5);
@@ -350,7 +229,7 @@ public class BlueTeleOp extends LinearOpMode {
             }
             break;
         }
-    //    return currentDegree;
+        return currentDegree;
     }
 
 
@@ -371,13 +250,13 @@ public class BlueTeleOp extends LinearOpMode {
     private void pmmF(double turnValF) {
         pmmF.setDirection(Servo.Direction.REVERSE);
         pmmF.setPosition(turnValF);
-      //  return turnValF;
+        //  return turnValF;
     }
 
     private void pmmA(double turnValA) {
         pmmA.setDirection(Servo.Direction.FORWARD);
         pmmA.setPosition(turnValA);
-    //    return turnValA;
+        //    return turnValA;
     }
 
 }
