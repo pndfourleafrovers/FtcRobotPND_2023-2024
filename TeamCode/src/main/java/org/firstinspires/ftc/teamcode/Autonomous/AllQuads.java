@@ -498,13 +498,15 @@ public class AllQuads extends LinearOpMode {
         rightBackDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         // Apply power
-        leftFrontDrive.setPower(power);
-        rightFrontDrive.setPower(power);
-        leftBackDrive.setPower(power);
-        rightBackDrive.setPower(power);
 
         while (opModeIsActive() && (leftFrontDrive.isBusy() || rightFrontDrive.isBusy() || leftBackDrive.isBusy() || rightBackDrive.isBusy())) {
             // Optionally provide telemetry updates
+            drive = Range.clip((leftBackDrive.getTargetPosition()-leftFrontDrive.getCurrentPosition()) * SPEED_GAIN+0.5 * (distance > 0 ? 1 : -1), -0.5 - MAX_AUTO_SPEED, 0.5+MAX_AUTO_SPEED);
+            leftFrontDrive.setPower(drive);
+            rightFrontDrive.setPower(drive);
+            leftBackDrive.setPower(drive);
+            rightBackDrive.setPower(drive);
+
             telemetry.addData("LeftFrontDrive Position", leftFrontDrive.getCurrentPosition());
             telemetry.addData("RightFrontDrive Position", rightFrontDrive.getCurrentPosition());
             telemetry.addData("LeftBackDrive Position", leftBackDrive.getCurrentPosition());
@@ -681,6 +683,12 @@ public class AllQuads extends LinearOpMode {
         // Wait for the motors to finish
         while (opModeIsActive() && (leftFrontDrive.isBusy() || rightFrontDrive.isBusy() || leftBackDrive.isBusy() || rightBackDrive.isBusy())) {
             // Optionally provide telemetry updates
+            strafePwr = Range.clip((leftBackDrive.getTargetPosition()-leftFrontDrive.getCurrentPosition()) * SPEED_GAIN+0.2, -0.5 - MAX_AUTO_SPEED, 0.5+MAX_AUTO_SPEED);
+            leftFrontDrive.setPower(strafePwr);
+            rightFrontDrive.setPower(strafePwr);
+            leftBackDrive.setPower(strafePwr);
+            rightBackDrive.setPower(strafePwr);
+
             telemetry.addData("LeftFrontDrive Position", leftFrontDrive.getCurrentPosition());
             telemetry.addData("RightFrontDrive Position", rightFrontDrive.getCurrentPosition());
             telemetry.addData("LeftBackDrive Position", leftBackDrive.getCurrentPosition());
@@ -727,6 +735,11 @@ public class AllQuads extends LinearOpMode {
         // Wait for the motors to finish
         while (opModeIsActive() && (leftFrontDrive.isBusy() || rightFrontDrive.isBusy() || leftBackDrive.isBusy() || rightBackDrive.isBusy())) {
             // Optionally provide telemetry updates
+            strafePwr = Range.clip((leftBackDrive.getTargetPosition()-leftFrontDrive.getCurrentPosition()) * SPEED_GAIN-0.2, -0.5 - MAX_AUTO_SPEED, 0.5+MAX_AUTO_SPEED);
+            leftFrontDrive.setPower(strafePwr);
+            rightFrontDrive.setPower(strafePwr);
+            leftBackDrive.setPower(strafePwr);
+            rightBackDrive.setPower(strafePwr);
             telemetry.addData("LeftFrontDrive Position", leftFrontDrive.getCurrentPosition());
             telemetry.addData("RightFrontDrive Position", rightFrontDrive.getCurrentPosition());
             telemetry.addData("LeftBackDrive Position", leftBackDrive.getCurrentPosition());
