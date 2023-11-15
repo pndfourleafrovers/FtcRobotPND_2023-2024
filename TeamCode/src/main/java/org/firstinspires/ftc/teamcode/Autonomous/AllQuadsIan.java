@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 
 @Autonomous(name="AllQuads", group="Autonomous")
 //@Disabled
-public class AllQuads extends LinearOpMode {
+public class AllQuadsIan extends LinearOpMode {
     final double DESIRED_DISTANCE = 13.5; //  this is how close the camera should get to the target (inches)
     //  Set the GAIN constants to control the relationship between the measured position error, and how much power is
     //  applied to the drive motors to correct the error.
@@ -243,7 +243,7 @@ public class AllQuads extends LinearOpMode {
             //Detecting the prop on the spike mark
 
             if (detectProp) {
-                if (objectDetectedLeft&&quadrant==3||objectDetectedRight&&quadrant==2) {
+                if (objectDetectedRight&&quadrant==3||objectDetectedLeft&&quadrant==2) {
                     //Position sets which April Tag to look for i.e. 1 for left if on the blue side, 3 is added if the robot is on the red side
                     // In quadrant 2 we have to switch the position because the robot was turned and left is now near the back drop, in quadrant 2 left was at the truss
                     Position = (quadrant==3)?1:3;
@@ -259,7 +259,7 @@ public class AllQuads extends LinearOpMode {
                     //April detections after this
                     findAprilTag = true;
                     detectProp = false;
-                } else if (objectDetectedRight&&quadrant==3||objectDetectedLeft&&quadrant==2) {
+                } else if (objectDetectedLeft&&quadrant==3||objectDetectedRight&&quadrant==2) {
                     //Position sets which April Tag to look for i.e. 3 for right if on the blue side, 3 is added if the robot is on the red side
                     // In quadrant 2 we have to switch the position because the robot was turned and left is now near the back drop, in quadrant 2 left was at the truss
                     Position = (quadrant==3)?3:1;//This also sets how far the robot strafes during parking
@@ -301,7 +301,7 @@ public class AllQuads extends LinearOpMode {
                     //April detection after this
                     findAprilTag = true;
                     detectProp = false;
-                } else if (objectDetectedLeft&&quadrant==4||objectDetectedRight&&quadrant==1){
+                } else if (objectDetectedRight&&quadrant==4||objectDetectedLeft&&quadrant==1){
                     Position = (quadrant==4)?1:3;
                     turnToHeading(90*((quadrant==1)?-1:1));
                     driveBackward(4.5, bwdPwr);
@@ -332,7 +332,7 @@ public class AllQuads extends LinearOpMode {
                     findAprilTag = true;
                     detectProp = false;
 
-                } else if (objectDetectedRight&&quadrant==4||objectDetectedLeft&&quadrant==1) {
+                } else if (objectDetectedLeft&&quadrant==4||objectDetectedRight&&quadrant==1) {
                     Position = (quadrant==4)?3:1;
                     turnToHeading(-90*((quadrant==1)?-1:1));
                     driveBackward(3.5, bwdPwr);
@@ -761,7 +761,7 @@ public class AllQuads extends LinearOpMode {
     }
     public void strafeWithObstacleDetection(double distance, double power, boolean strafeLeft) {
         while (remainingDistance > 0) {
-            if ((strafeLeft ? sensorRight : sensorLeft).getDistance(DistanceUnit.CM) < DETECTION_THRESHOLD2) {
+            if ((strafeLeft ? sensorLeft : sensorRight).getDistance(DistanceUnit.CM) < DETECTION_THRESHOLD2) {
                 // If an obstacle is detected, stop and wait
                 sleep(1000);
             } else {
