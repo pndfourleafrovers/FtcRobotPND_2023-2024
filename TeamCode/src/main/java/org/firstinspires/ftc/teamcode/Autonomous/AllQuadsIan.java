@@ -44,7 +44,7 @@ public class AllQuads extends LinearOpMode {
     private DistanceSensor sensorLeft;
     private DistanceSensor sensorRight;
     private static final double DETECTION_THRESHOLD = 20.0;  // e.g., 20 cm
-    private static final double DETECTION_THRESHOLD2 = 14;  // e.g., 20 cm
+    private static final double DETECTION_THRESHOLD2 = 12.7;  // e.g., 20 cm
     boolean objectDetectedLeft = false;
     boolean detectProp = true;
     boolean objectDetectedRight = false;
@@ -321,10 +321,10 @@ public class AllQuads extends LinearOpMode {
                     WATCHOUT = true;
                     if (WATCHOUT){
                         if(quadrant==4){
-                            strafeRightWithObstacleDetection(21, strafePwr, DETECTION_THRESHOLD2);
-                        } else {
-                            strafeLeftWithObstacleDetection(21, strafePwr, DETECTION_THRESHOLD2);
-                        }
+                            strafeWithObstacleDetection(30, strafePwr, false); // false for strafing right
+                            } else {
+                                strafeWithObstacleDetection(30, strafePwr, true); // true for strafing left
+                            }
                         WATCHOUT = false;
                     }
 
@@ -349,13 +349,10 @@ public class AllQuads extends LinearOpMode {
                     }
                     turnToHeading(90*((quadrant==1)?-1:1));
                     driveForward(72,1);
-                    if (WATCHOUT){
-                        if(quadrant==4){
-                            strafeRightWithObstacleDetection(32, strafePwr, DETECTION_THRESHOLD2);
-                        } else {
-                            strafeLeftWithObstacleDetection(32, strafePwr, DETECTION_THRESHOLD2);
-                        }
-                        WATCHOUT = false;
+                    if(quadrant==4){
+                        strafeRight(32,strafePwr);
+                    } else {
+                        strafeLeft(32,strafePwr);
                     }
                     //April detection after this
                     findAprilTag = true;
@@ -380,9 +377,9 @@ public class AllQuads extends LinearOpMode {
                     driveForward(85,1);
                     if (WATCHOUT){
                         if(quadrant==4){
-                            strafeRightWithObstacleDetection(21, strafePwr, DETECTION_THRESHOLD2);
+                            strafeWithObstacleDetection(30, strafePwr, false); // false for strafing right
                         } else {
-                            strafeLeftWithObstacleDetection(21, strafePwr, DETECTION_THRESHOLD2);
+                            strafeWithObstacleDetection(30, strafePwr, true); // true for strafing left
                         }
                         WATCHOUT = false;
                     }
@@ -749,139 +746,52 @@ public class AllQuads extends LinearOpMode {
         leftBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
-    public void strafeRightWithObstacleDetection(double distance, double power, double detectionThreshold) {
-        int ticksToMove;
-        double ticksPerInch = (537.7 / ((96 / 25.4) * Math.PI));
-        ticksToMove = (int) (distance * ticksPerInch);
-
-        // Set target positions for strafing right
-        leftFrontDrive.setTargetPosition(leftFrontDrive.getCurrentPosition() + ticksToMove);
-        rightFrontDrive.setTargetPosition(rightFrontDrive.getCurrentPosition() - ticksToMove);
-        leftBackDrive.setTargetPosition(leftBackDrive.getCurrentPosition() - ticksToMove);
-        rightBackDrive.setTargetPosition(rightBackDrive.getCurrentPosition() + ticksToMove);
-
-        // Set the mode to RUN_TO_POSITION
-        leftFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        leftBackDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightBackDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        // Apply power
-        leftFrontDrive.setPower(power);
-        rightFrontDrive.setPower(power);
-        leftBackDrive.setPower(power);
-        rightBackDrive.setPower(power);
-
-        // Wait for the motors to finish or stop if an obstacle is detected
-        while (opModeIsActive() && (leftFrontDrive.isBusy() || rightFrontDrive.isBusy() || leftBackDrive.isBusy() || rightBackDrive.isBusy())) {
-            // Check for obstacle
-            if (sensorLeft.getDistance(DistanceUnit.CM) < DETECTION_THRESHOLD2) {
-                // Obstacle detected, stop all motors
-                leftFrontDrive.setPower(0);
-                rightFrontDrive.setPower(0);
-                leftBackDrive.setPower(0);
-                rightBackDrive.setPower(0);
-
-                // Wait until the obstacle is cleared
-                while (sensorLeft.getDistance(DistanceUnit.CM) < DETECTION_THRESHOLD2) {
-                    // Optionally add a sleep here to avoid a busy loop
-                    sleep(100);
+    public void strafeWithObstacleDetection(double distance, double power, boolean strafeLeft) {
+        while (remainingDistance > 0) {
+            if ((strafeLeft ? sensorRight : sensorLeft).getDistance(DistanceUnit.CM) < DETECTION_THRESHOLD2) {
+                // If an obstacle is detected, stop and wait
+                sleep(1000);
+            } else {
+                // No obstacle detected, proceed to strafe
+                double distanceToStrafeNow = Math.min(remainingDistance, 5);
+                if (strafeLeft) {
+                    strafeLeft(distanceToStrafeNow, strafePwr);
+                } else {
+                    strafeRight(distanceToStrafeNow, strafePwr);
                 }
 
-                // Once the obstacle is cleared, resume movement
-                leftFrontDrive.setPower(power);
-                rightFrontDrive.setPower(power);
-                leftBackDrive.setPower(power);
-                rightBackDrive.setPower(power);
+                // Update the remaining distance
+                remainingDistance -= distanceToStrafeNow;
             }
-
-            // Optionally provide telemetry updates
-            telemetry.addData("LeftFrontDrive Position", leftFrontDrive.getCurrentPosition());
-            telemetry.addData("RightFrontDrive Position", rightFrontDrive.getCurrentPosition());
-            telemetry.addData("LeftBackDrive Position", leftBackDrive.getCurrentPosition());
-            telemetry.addData("RightBackDrive Position", rightBackDrive.getCurrentPosition());
-            telemetry.update();
         }
-
-        // Stop all the motors
-        leftFrontDrive.setPower(0);
-        rightFrontDrive.setPower(0);
-        leftBackDrive.setPower(0);
-        rightBackDrive.setPower(0);
-
-        // Reset the motor modes back to RUN_USING_ENCODER
-        leftFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        leftBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
+    private void controlArm(int desiredPosition) {
+        switch (state) {
+            case READY_TO_MOVE:
+                // Ready to move to a new position
+                int targetPosition = (int) (TICKS_PER_DEGREES * desiredPosition);
+                arm.setTargetPosition(targetPosition);
+                arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                arm.setPower(0.5);
+                state = State.MOVING;
+                break;
 
-
-    public void strafeLeftWithObstacleDetection(double distance, double power, double detectionThreshold) {
-        int ticksToMove;
-        double ticksPerInch = (537.7 / ((96 / 25.4) * Math.PI));
-        ticksToMove = (int) (distance * ticksPerInch);
-
-        // Set target positions for strafing left
-        leftFrontDrive.setTargetPosition(leftFrontDrive.getCurrentPosition() - ticksToMove);
-        rightFrontDrive.setTargetPosition(rightFrontDrive.getCurrentPosition() + ticksToMove);
-        leftBackDrive.setTargetPosition(leftBackDrive.getCurrentPosition() + ticksToMove);
-        rightBackDrive.setTargetPosition(rightBackDrive.getCurrentPosition() - ticksToMove);
-
-        // Set the mode to RUN_TO_POSITION
-        leftFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        leftBackDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightBackDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        // Apply power
-        leftFrontDrive.setPower(power);
-        rightFrontDrive.setPower(power);
-        leftBackDrive.setPower(power);
-        rightBackDrive.setPower(power);
-
-        // Wait for the motors to finish or stop if an obstacle is detected
-        while (opModeIsActive() && (leftFrontDrive.isBusy() || rightFrontDrive.isBusy() || leftBackDrive.isBusy() || rightBackDrive.isBusy())) {
-            // Check for obstacle
-            if (sensorRight.getDistance(DistanceUnit.CM) < DETECTION_THRESHOLD2) {
-                // Obstacle detected, stop all motors
-                leftFrontDrive.setPower(0);
-                rightFrontDrive.setPower(0);
-                leftBackDrive.setPower(0);
-                rightBackDrive.setPower(0);
-
-                // Wait until the obstacle is cleared
-                while (sensorRight.getDistance(DistanceUnit.CM) < DETECTION_THRESHOLD2) {
-                    // Optionally add a sleep here to avoid a busy loop
-                    sleep(100);
+            case MOVING:
+                // Wait for the arm to reach the target position
+                if (!arm.isBusy()) {
+                    // Arm has reached the target, start the timer and switch to waiting state
+                    timer.reset();
+                    state = State.WAITING;
                 }
+                break;
 
-                // Once the obstacle is cleared, resume movement
-                leftFrontDrive.setPower(power);
-                rightFrontDrive.setPower(power);
-                leftBackDrive.setPower(power);
-                rightBackDrive.setPower(power);
-            }
-
-            // Optionally provide telemetry updates
-            telemetry.addData("LeftFrontDrive Position", leftFrontDrive.getCurrentPosition());
-            telemetry.addData("RightFrontDrive Position", rightFrontDrive.getCurrentPosition());
-            telemetry.addData("LeftBackDrive Position", leftBackDrive.getCurrentPosition());
-            telemetry.addData("RightBackDrive Position", rightBackDrive.getCurrentPosition());
-            telemetry.update();
+            case WAITING:
+                // Wait for the specified time
+                if (timer.seconds() > WAIT_TIME) {
+                    // Time is up, ready to move to a new position
+                    state = State.READY_TO_MOVE;
+                }
+                break;
         }
-
-        // Stop all the motors
-        leftFrontDrive.setPower(0);
-        rightFrontDrive.setPower(0);
-        leftBackDrive.setPower(0);
-        rightBackDrive.setPower(0);
-
-        // Reset the motor modes back to RUN_USING_ENCODER
-        leftFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        leftBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
-
 }
