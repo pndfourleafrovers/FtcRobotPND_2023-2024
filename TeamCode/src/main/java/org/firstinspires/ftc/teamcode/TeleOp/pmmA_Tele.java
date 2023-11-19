@@ -117,9 +117,9 @@ public class pmmA_Tele extends LinearOpMode {
                         arm.setTargetPosition(TICKS_PER_DEGREE * -0);
                         arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                         break;
-                                }
-                         }
                     }
+                }
+            }
             if(gamepad2.x){
                 armMovement(7);
             }
@@ -138,8 +138,8 @@ public class pmmA_Tele extends LinearOpMode {
             else if (gamepad2.dpad_down) {
                 armMovement(0);
             }
-                }
-            }
+        }
+    }
 
     private void armMovement (int degree){
         while (Run = true) {
@@ -158,5 +158,4 @@ public class pmmA_Tele extends LinearOpMode {
         }
 
     }
-        }
-
+}

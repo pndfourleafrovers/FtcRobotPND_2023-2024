@@ -10,14 +10,14 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.Mixed.AprilTagFinder;
-import org.firstinspires.ftc.teamcode.Mixed.AprilTagFinder;
+import org.firstinspires.ftc.teamcode.Random.Mixed.AprilTagFinder;
+
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 
-@TeleOp(name="TeleOpFinal", group="TeleOp")
+@TeleOp(name="ArmVariable", group="TeleOp")
 //@Disabled
 public class ArmVariable extends LinearOpMode {
 
@@ -76,7 +76,6 @@ public class ArmVariable extends LinearOpMode {
         initHardware();
 
 
-
         // Wait for the game to start (driver presses PLAY)
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -87,17 +86,18 @@ public class ArmVariable extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
-            double max;
+            //    double max;
 
 
-            double armMove =  -gamepad2.left_stick_y;
-            telemetry.addData("Arm Position", arm.getCurrentPosition()/TICKS_PER_DEGREE);
+        //    double armMove = -gamepad2.left_stick_y;
+        //    telemetry.addData("Arm Position", arm.getCurrentPosition() / TICKS_PER_DEGREE);
+       //     double armPower = armMove;
+            //   max = Math.max(Math.abs(armPower));
+            //         if (max > 0.3) {
+            //             armPower /= max;
+            //       }
 
-            //      if (max2 > 0.3) {
-            //           armPower /= max;
-            //    }
 
-            double armPower=armMove;
 /**
  * Test code
  */
@@ -117,16 +117,14 @@ public class ArmVariable extends LinearOpMode {
  */
 
 
-
-
-            arm.setPower(armPower * 0.2);
-            currentDegree = arm.getCurrentPosition() / TICKS_PER_DEGREE;
-            if(arm.getCurrentPosition()==currentDegree*TICKS_PER_DEGREE){
+         //   arm.setPower(armPower * 0.2);
+            //    currentDegree = arm.getCurrentPosition() / TICKS_PER_DEGREE;
+        /*    if(arm.getCurrentPosition()==currentDegree*TICKS_PER_DEGREE){
                 int holdPosition = arm.getCurrentPosition()/TICKS_PER_DEGREE;
                 armMovement(holdPosition, 0.2);
             }
 
-
+         */
 
 
             if (gamepad2.right_bumper) {
@@ -154,13 +152,30 @@ public class ArmVariable extends LinearOpMode {
              * Test Below
              * Makes it so robot takes "snapshot" of current Position and saves it
              */
-            /*
-            if (gamepad2.right_stick_button) {
-                int holdPosition = arm.getCurrentPosition()/TICKS_PER_DEGREE;
-                armMovement(holdPosition, 0.2);
-            }
 
-             */
+               if (gamepad2.right_stick_button) {
+                   arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                  double armMove = -gamepad2.left_stick_y;
+                  telemetry.addData("Arm Position", arm.getCurrentPosition()/TICKS_PER_DEGREE);
+                  double armPower = armMove;
+                  if(armPower<-0.1){
+                      armPower = -0.1;
+                  } else if (armPower>0.2){
+                        armPower = 0.2;
+                      } else if (armPower == 0) {
+                        armPower = 0.0000001;
+                  }
+
+                   arm.setPower(armPower);
+                }
+            if (gamepad2.back) {
+                int holdPosition = arm.getCurrentPosition()/TICKS_PER_DEGREE;
+                armMovement(holdPosition,0.2);
+            }
+            //  if (gamepad2.right_stick_button) {
+            //       int holdPosition = arm.getCurrentPosition()/TICKS_PER_DEGREE;
+            //      armMovement(holdPosition,0.2);
+            //  }
 /**
  * Test Below
  * Togglable version, not preferable
@@ -192,19 +207,15 @@ public class ArmVariable extends LinearOpMode {
         }
 
 
-
-
-
         // Show the elapsed game time and wheel power.
         telemetry.addData("Status", "Run Time: " + runtime.toString());
         //   telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
         //    telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
         telemetry.addData("Servo Position", pmmF.getPosition());
         telemetry.update();
+
+
     }
-
-
-
 
     private void initHardware() {
         // Initialize the hardware variables. Note that the strings used here as parameters
@@ -233,35 +244,16 @@ public class ArmVariable extends LinearOpMode {
             arm.setTargetPosition(TICKS_PER_DEGREE * (degree - currentDegree));
             arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             arm.setPower(power);
-            /**
-             * Test Below
-             */
-            //    arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            /**
-             * Test Below
-             */
-            //   degree = currentDegree;
-            //maybe try a sleep? Does it run during sleep? Because that would solve all our problems. Except Apriltags being weird.
-            //   if (gamepad2.right_stick_button) {
-            //      degree = currentDegree;
-            //      break;
-            //   }
+            degree = currentDegree;
             break;
         }
         return currentDegree;
     }
-   /*
-    private int centerPassage(int degree, int distance) {
-        armMovement(degree);
-        sleep(1000);
-        driveForward(12, 1);
-
-    }
-*/
 
 
 
 }
+//     arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 /*
 double armMove =  -gamepad2.left_stick_y;
 

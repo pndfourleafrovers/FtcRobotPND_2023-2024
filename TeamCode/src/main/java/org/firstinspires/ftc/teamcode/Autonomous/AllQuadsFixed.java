@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
-
+import com.qualcomm.robotcore.hardware.TouchSensor;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
@@ -18,16 +18,15 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainCon
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
-import org.firstinspires.ftc.teamcode.Mixed.AprilTagFinder;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
-
+import org.firstinspires.ftc.teamcode.Random.Mixed.AprilTagFinder;
 import java.util.concurrent.TimeUnit;
 
-@Autonomous(name="FrontTwoQuads", group="Autonomous")
+@Autonomous(name="AllQuadsFixed", group="Autonomous")
 //@Disabled
-public class FrontTwoQuads extends LinearOpMode {
+public class AllQuadsFixed extends LinearOpMode {
     final double DESIRED_DISTANCE = 13.5; //  this is how close the camera should get to the target (inches)
     //  Set the GAIN constants to control the relationship between the measured position error, and how much power is
     //  applied to the drive motors to correct the error.
@@ -52,8 +51,10 @@ public class FrontTwoQuads extends LinearOpMode {
     boolean atBackdrop = false;
     boolean ENDGAME = false;
     boolean startOfAutonomous = true;
-
-
+    //These are for setting the speed of the robot
+    double fwdPwr = 0.6;
+    double bwdPwr = 0.6;
+    double strafePwr= 0.6;
 
     private static final boolean USE_WEBCAM = true;  // Set true to use a webcam, or false for a phone camera
     private int DESIRED_TAG_ID;     // Choose the tag you want to approach or set to -1 for ANY tag.
@@ -92,11 +93,13 @@ public class FrontTwoQuads extends LinearOpMode {
     ElapsedTime timer = new ElapsedTime();
     final double WAIT_TIME = 1.0;       // Time to wait in seconds
     int moveArmToPosition = 7;          // Position to move the arm to in degrees
-
+    private TouchSensor touchSensor;
     @Override
     public void runOpMode() {
         // Step 1: Initialization
         potentiometer = hardwareMap.get(AnalogInput.class, "potentiometer");
+// only implement this code if you have the touch sensor driving where to park
+//        touchSensor = hardwareMap.get(TouchSensor.class, "touch")
         int quadrant = getPotentiometerQuadrant();
         boolean targetFound = false;    // APRIL TAG: Set to true when an AprilTag target is detected
         double drive = 0;        // Desired forward power/speed (-1 to +1)
@@ -130,11 +133,19 @@ public class FrontTwoQuads extends LinearOpMode {
         while (opModeIsActive()) {
             // when the Robot is at the backdrop and aligned to the correct April Tag
             while (atBackdrop) {
-                 //We are at the correct location relative to the April Tag, stop the motors
+                //We are at the correct location relative to the April Tag, stop the motors
                 leftFrontDrive.setPower(0);
                 rightFrontDrive.setPower(0);
                 leftBackDrive.setPower(0);
                 rightBackDrive.setPower(0);
+                //Here we are moving slightly to the left or right of the april tag to avoid that the pixel bounces out of place
+                if (DESIRED_TAG_ID==6 || DESIRED_TAG_ID ==3){
+                    strafeRight(2,strafePwr);
+                } else if (DESIRED_TAG_ID==4 || DESIRED_TAG_ID ==1){
+                    strafeLeft(2,strafePwr);
+                }
+                //sometimes the april tag code does not align properly, let the IMU do that for you
+                turnToHeading((quadrant==1||quadrant==2)?-90:90);
                 //Position the arm to drop the pixel
                 arm.setTargetPosition(TICKS_PER_DEGREE * 210);
                 arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -150,26 +161,56 @@ public class FrontTwoQuads extends LinearOpMode {
             }
             //Proceed to Parking the robot
             if (ENDGAME){
-              //Give the arm time to get back to the position just off of the floor
-              sleep(1000);
-              arm.setTargetPosition(TICKS_PER_DEGREE * 7);
-              arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-              arm.setPower(0.5);
-              sleep(2000);
-              if(quadrant==3) {
-                  strafeRobot(distToStrafeAtPark[Position], .5);
-              } else {
-                    int index = (Position == 3) ? 1 : (Position == 1) ? 3 : 2;
-                    double negativeValue = distToStrafeAtPark[index] * -1;
-                    strafeRobot(negativeValue, 0.5);
-              }
-              driveForward(8,0.5);
-              sleep(3000);
-              requestOpModeStop();
+                //Give the arm time to get back to the position just off of the floor
+                sleep(1000);
+                arm.setTargetPosition(TICKS_PER_DEGREE * 0);
+                arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                arm.setPower(0.5);
+                sleep(2000);
+                arm.setTargetPosition(TICKS_PER_DEGREE * 7);
+                arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                arm.setPower(0.5);
+// only implement this code if you have the touch sensor driving where to park
+// pressing the touch sensor goes to center
+// not pressing the touch sensor goes to the corners
+/*                if (touchSensor.isPressed()){ //Go to the center
+                    if (quadrant==1|| quadrant==2){
+                        strafeRight(distToStrafeAtPark[Position], strafePwr);
+                    } else {
+                        strafeLeft(distToStrafeAtPark[(Position==1)?3:(Position==3)?1:Position],strafePwr);
+                    }
+                } else {
+                    if (quadrant==1|| quadrant==2){
+                        strafeLeft(distToStrafeAtPark[(Position==1)?3:(Position==3)?1:Position],strafePwr);
+                    } else {
+                        strafeRight(distToStrafeAtPark[Position], strafePwr);
+                    }
+                }
+*/
+                //This is where to park if we are in quadrant 1 i.e. front of the blue then park in the middle
+                if (quadrant==1){
+                    strafeRight(distToStrafeAtPark[Position], strafePwr);
+                } else if (quadrant==2) { //park in the corner, since the travel from 3 is the longest assign it 1 in the array distToStrafeAtPark because it is the largest number
+                    strafeLeft(distToStrafeAtPark[(Position==1)?3:(Position==3)?1:Position],strafePwr);
+                } else if (quadrant==3) {
+                    strafeRight(distToStrafeAtPark[Position], strafePwr);
+                } else {
+                    strafeLeft(distToStrafeAtPark[(Position==1)?3:(Position==3)?1:Position],strafePwr);
+                }
+                //final drive before parking in the backstage
+                driveForward(10,fwdPwr);
+                sleep(2000);
+                arm.setTargetPosition(TICKS_PER_DEGREE * 0);
+                arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                arm.setPower(0.5);
+                arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                sleep(5000);
+                requestOpModeStop();
             }
-                //THIS IS THE START OF AUTONOMOUS
+            //THIS IS THE START OF AUTONOMOUS
             if (startOfAutonomous) {
-                //The robot is at the wall at the start of Autonomous
+                //The robot is at the wall at the start of Autonomous. Remember that the direction of the IMU sets the 0 and the start of each run.
                 // Lift the ARM 7 degrees off of the ground and hold it there
                 arm.setTargetPosition(TICKS_PER_DEGREE * 7);
                 arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -184,81 +225,161 @@ public class FrontTwoQuads extends LinearOpMode {
                 turnToHeading(0);
                 //initially the robot has the robot facing towards the wall so we have to move the robot backwards
                 //we want to get past the truss before we start looking for the prop
-                driveBackward(21, 0.5);
+                driveBackward(21, bwdPwr);
                 //We have passed the truss start looking for the prop
                 lookForProp = true;
                 //drive backwards until you find where the prop is located, the distance sensors detect left and right and if neither then it is front
-                driveBackward(5, 0.5);
+                driveBackward(11, bwdPwr);
                 //stop looking for the prop
                 lookForProp = false;
+                driveForward(6, 0.5);
                 startOfAutonomous = false;
             }
-         //Detecting the prop on the spike mark
-        if (detectProp) {
-            if (objectDetectedLeft&&quadrant==3||objectDetectedRight&&quadrant==2) {
-                //Position sets which April Tag to look for i.e. 1 for left if on the blue side, 3 is added if the robot is on the red side
-                Position = (quadrant==3)?1:3;
-                //This sets how far the robot strafes during parking
-                turnToHeading(90*((quadrant==2)?-1:1));
-                driveBackward(3.5, 0.5);
+            //Detecting the prop on the spike mark
+            if (detectProp) {
+                if (objectDetectedLeft&&quadrant==3||objectDetectedRight&&quadrant==2) {
+                    //Position sets which April Tag to look for i.e. 1 for left if on the blue side, 3 is added if the robot is on the red side
+                    // In quadrant 2 we have to switch the position because the robot was turned and left is now near the back drop, in quadrant 2 left was at the truss
+                    Position = (quadrant==3)?1:3;
+                    //This sets how far the robot strafes during parking
+                    turnToHeading(90*((quadrant==2)?-1:1));
+                    driveBackward(3.5, bwdPwr);
 
-                //Release the pixel on the floor PMM on the spike line
-                pmmF.setDirection(Servo.Direction.REVERSE);
-                pmmF.setPosition(0);
+                    //Release the pixel on the floor PMM on the spike line
+                    pmmF.setDirection(Servo.Direction.REVERSE);
+                    pmmF.setPosition(0);
 
-                driveForward(5, 0.5);
-                //April detections after this
-                findAprilTag = true;
-                detectProp = false;
-            } else if (objectDetectedRight&&quadrant==3||objectDetectedLeft&&quadrant==2) {
-                //Position sets which April Tag to look for i.e. 3 for right if on the blue side, 3 is added if the robot is on the red side
-                Position = (quadrant==3)?3:1;
-                //This sets how far the robot strafes during parking
-                turnToHeading(-90*((quadrant==2)?-1:1));
-                driveBackward(3.5, 0.5);
+                    driveForward(5, fwdPwr);
+                    //April detections after this
+                    findAprilTag = true;
+                    detectProp = false;
+                } else if (objectDetectedRight&&quadrant==3||objectDetectedLeft&&quadrant==2) {
+                    //Position sets which April Tag to look for i.e. 3 for right if on the blue side, 3 is added if the robot is on the red side
+                    // In quadrant 2 we have to switch the position because the robot was turned and left is now near the back drop, in quadrant 2 left was at the truss
+                    Position = (quadrant==3)?3:1;//This also sets how far the robot strafes during parking
+                    turnToHeading(-90*((quadrant==2)?-1:1)); //if you are in quadrant 2 change to +90 degrees
+                    driveBackward(3.5, bwdPwr);
 
-                //Release the pixel on the floor PMM on the spike line
-                pmmF.setDirection(Servo.Direction.REVERSE);
-                pmmF.setPosition(0);
+                    //Release the pixel on the floor PMM on the spike line
+                    pmmF.setDirection(Servo.Direction.REVERSE);
+                    pmmF.setPosition(0);
+                    driveForward(3.5,fwdPwr);
+                    if (quadrant==3){
+                        strafeLeft(23,strafePwr);
+                    } else {
+                        strafeRight(23,strafePwr);
+                    }
+                    driveBackward(25,bwdPwr);
+                    turnToHeading(90*((quadrant==2)?-1:1));
+                    if (quadrant==3){
+                        strafeLeft(15,strafePwr);
+                    } else {
+                        strafeRight(15,strafePwr);
+                    }
+                    //April detection after this
+                    findAprilTag = true;
+                    detectProp = false;
+                } else if (quadrant==3||quadrant==2) {
+                    //Position sets which April Tag to look for i.e. 3 for center if on the blue side, 3 is added if the robot is on the red side
+                    Position = 2;
+                    // Continue forward if no objects were detected
+                    driveBackward(4.5, bwdPwr);
 
-                driveForward(6.0, .5);
-                turnToHeading((quadrant==2)?172:8);
+                    //Release the pixel on the floor PMM on the spike line
+                    pmmF.setDirection(Servo.Direction.REVERSE);
+                    pmmF.setPosition(0);
 
-                driveForward(20, .5);
-                turnToHeading(90);
+                    driveForward(5.5, .5);
+                    turnToHeading(90*((quadrant==2)?-1:1));   //if you are in quadrant 2 change to -90 degrees
+                    //April detection after this
+                    findAprilTag = true;
+                    detectProp = false;
+                } else if (objectDetectedLeft&&quadrant==4||objectDetectedRight&&quadrant==1){
+                    Position = (quadrant==4)?1:3;
+                    turnToHeading(90*((quadrant==1)?-1:1));
+                    driveBackward(4.5, bwdPwr);
 
-                driveForward(26, 0.5);
-                turnToHeading(180*((quadrant==2)?-1:1));
+                    //Release the pixel on the floor PMM on the spike line
+                    pmmF.setDirection(Servo.Direction.REVERSE);
+                    pmmF.setPosition(0);
 
-                driveForward(17, 0.5);
-                turnToHeading(90);
-                //April detection after this
-                findAprilTag = true;
-                detectProp = false;
-            } else {
-                //Position sets which April Tag to look for i.e. 3 for center if on the blue side, 3 is added if the robot is on the red side
-                Position = 2;
-                // Continue forward if no objects were detected
-                driveBackward(4, 0.5);
+                    driveForward(4, fwdPwr);
+                    if(quadrant==4){
+                        strafeLeft(29,strafePwr);
+                    } else {
+                        strafeRight(29,strafePwr);
+                    }
+                    turnToHeading(90*((quadrant==1)?-1:1));
+                    driveForward(70,1);
+                    if(quadrant==4){
+                        strafeRight(21,strafePwr);
+                    } else {
+                        strafeLeft(21,strafePwr);
+                    }
+                    //April detections after this
+                    findAprilTag = true;
+                    detectProp = false;
 
-                //Release the pixel on the floor PMM on the spike line
-                pmmF.setDirection(Servo.Direction.REVERSE);
-                pmmF.setPosition(0);
+                } else if (objectDetectedRight&&quadrant==4||objectDetectedLeft&&quadrant==1) {
+                    Position = (quadrant==4)?3:1;
+                    turnToHeading(-90*((quadrant==1)?-1:1));
+                    driveBackward(3.5, bwdPwr);
 
-                driveForward(5, .5);
-                turnToHeading(90*((quadrant==2)?-1:1));
-                //April detection after this
-                findAprilTag = true;
-                detectProp = false;
+                    //Release the pixel on the floor PMM on the spike line
+                    pmmF.setDirection(Servo.Direction.REVERSE);
+                    pmmF.setPosition(0);
+
+                    driveForward(4, fwdPwr);
+                    if(quadrant==4){
+                        strafeRight(28,strafePwr);
+                    } else {
+                        strafeLeft(28,strafePwr);
+                    }
+                    turnToHeading(90*((quadrant==1)?-1:1));
+                    driveForward(72,1);
+                    if(quadrant==4){
+                        strafeRight(32,strafePwr);
+                    } else {
+                        strafeLeft(32,strafePwr);
+                    }
+                    //April detection after this
+                    findAprilTag = true;
+                    detectProp = false;
+                } else if (quadrant==4||quadrant==1){
+                    Position = 2;
+                    // Continue forward if no objects were detected
+                    driveBackward(4.5, bwdPwr);
+
+                    //Release the pixel on the floor PMM on the spike line
+                    pmmF.setDirection(Servo.Direction.REVERSE);
+                    pmmF.setPosition(0);
+
+                    driveForward(4.5, .5);
+                    if(quadrant==4){
+                        strafeRight(15,strafePwr);
+                    } else {
+                        strafeLeft(15,strafePwr);
+                    }
+                    driveBackward(27,0.8);
+                    turnToHeading(90*((quadrant==1)?-1:1));
+                    driveForward(85,1);
+                    if(quadrant==4){
+                        strafeRight(21,strafePwr);
+                    } else {
+                        strafeLeft(21,strafePwr);
+                    }
+                    //April detection after this
+                    findAprilTag = true;
+                    detectProp = false;
+                }
             }
-        }
 
             while (findAprilTag) {
                 //if we are on the blue side, i.e. quadrant 1, or 2, then "Position", set during find prop, is the tag we are looking for
                 int quadAdd = 0;  // if the robot is in the blue side find april tags, 1, 2, 3
                 //if we are on the red side, i.e. quadrant 3, or 4, then we need to add 3 to "Position", set during find prop, to find the right April Tag
                 if (quadrant == 3 || quadrant == 4) {
-                    quadAdd = 3; // if the robot is in the red side find april tags 3, 4, 6
+                    quadAdd = 3; // if the robot is in the red side find april tags 4, 5, 6
                 }
                 DESIRED_TAG_ID = Position + quadAdd;
                 detectedTag = null; // APRIL TAG:
@@ -503,10 +624,68 @@ public class FrontTwoQuads extends LinearOpMode {
         rightBackDrive.setPower(0);
 
     }
-    //A positive distance value will make the robot strafe to the right.
-    //A negative distance value will make the robot strafe to the left.
-    //The power parameter controls the speed of the strafing motion.
-    public void strafeRobot(double distance, double power) {
+    public int getPotentiometerQuadrant() {
+        double voltage = potentiometer.getVoltage();
+
+        if (voltage < 0.7) {
+            return 2; // This is the back of the blue alliance
+        } else if (voltage >= 0.8 && voltage <= 1.2) {
+            return 1; // This is the front of the blue alliance
+        } else if (voltage >= 1.4 && voltage <= 2.2) {
+            return 4; // This is the front of the red alliance
+        } else if (voltage > 2.4) {
+            return 3; // This is the back of the red alliance
+        } else {
+            return 0; // Return 0 if the voltage doesn't match any quadrant, this should only happen if the dial is placed on the black line
+        }
+    }
+
+    public void strafeLeft(double distance, double power) {
+        int ticksToMove;
+        double ticksPerInch = (537.7 / ((96/25.4) * Math.PI));
+        ticksToMove = (int) (distance * ticksPerInch);
+
+        // Positive distance means strafe left, negative means strafe right
+        leftFrontDrive.setTargetPosition(leftFrontDrive.getCurrentPosition() + (int) (ticksToMove * (distance > 0 ? -1 : 1)));
+        rightFrontDrive.setTargetPosition(rightFrontDrive.getCurrentPosition() + (int) (ticksToMove * (distance > 0 ? 1 : -1)));
+        leftBackDrive.setTargetPosition(leftBackDrive.getCurrentPosition() + (int) (ticksToMove * (distance > 0 ? 1 : -1)));
+        rightBackDrive.setTargetPosition(rightBackDrive.getCurrentPosition() + (int) (ticksToMove * (distance > 0 ? -1 : 1)));
+
+        // Set the mode to RUN_TO_POSITION
+        leftFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        leftBackDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightBackDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        // Apply power
+        leftFrontDrive.setPower(power);
+        rightFrontDrive.setPower(power);
+        leftBackDrive.setPower(power);
+        rightBackDrive.setPower(power);
+
+        // Wait for the motors to finish
+        while (opModeIsActive() && (leftFrontDrive.isBusy() || rightFrontDrive.isBusy() || leftBackDrive.isBusy() || rightBackDrive.isBusy())) {
+            // Optionally provide telemetry updates
+            telemetry.addData("LeftFrontDrive Position", leftFrontDrive.getCurrentPosition());
+            telemetry.addData("RightFrontDrive Position", rightFrontDrive.getCurrentPosition());
+            telemetry.addData("LeftBackDrive Position", leftBackDrive.getCurrentPosition());
+            telemetry.addData("RightBackDrive Position", rightBackDrive.getCurrentPosition());
+            telemetry.update();
+        }
+
+        // Stop all the motors
+        leftFrontDrive.setPower(0);
+        rightFrontDrive.setPower(0);
+        leftBackDrive.setPower(0);
+        rightBackDrive.setPower(0);
+
+        // Reset the motor modes back to RUN_USING_ENCODER
+        leftFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+    public void strafeRight(double distance, double power) {
         int ticksToMove;
         double ticksPerInch = (537.7 / ((96/25.4) * Math.PI)); //537.7 encoder ticks, wheel is 96mm converting to inches divide by 25.4, per one circumference of the wheel
         ticksToMove = (int) (distance * ticksPerInch);
@@ -550,22 +729,6 @@ public class FrontTwoQuads extends LinearOpMode {
         rightFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         leftBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-    }
-
-    public int getPotentiometerQuadrant() {
-        double voltage = potentiometer.getVoltage();
-
-        if (voltage < 0.7) {
-            return 2; // This is the back of the blue alliance
-        } else if (voltage >= 0.8 && voltage <= 1.2) {
-            return 1; // This is the front of the blue alliance
-        } else if (voltage >= 1.4 && voltage <= 2.2) {
-            return 4; // This is the front of the red alliance
-        } else if (voltage > 2.4) {
-            return 3; // This is the back of the red alliance
-        } else {
-            return 0; // Return 0 if the voltage doesn't match any quadrant, this should only happen if the dial is placed on the black line
-        }
     }
     private void controlArm(int desiredPosition) {
         switch (state) {

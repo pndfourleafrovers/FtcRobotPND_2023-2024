@@ -18,7 +18,7 @@ public class pmmA_Auto extends LinearOpMode {
     static final int TICKS_PER_DEGREE = TICKS_PER_MOTOR_REV/120;
     int armPosition = 819;
     private ElapsedTime runtime = new ElapsedTime();
-//3:1 gear ratio
+    //3:1 gear ratio
     @Override
     public void runOpMode() {
 
