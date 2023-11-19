@@ -44,6 +44,7 @@ public class AllQuadsFixed extends LinearOpMode {
     private DistanceSensor sensorLeft;
     private DistanceSensor sensorRight;
     private static final double DETECTION_THRESHOLD = 20.0;  // e.g., 20 cm
+    private static final double DETECTION_THRESHOLD2 = 12.7;  // e.g., 20 cm
     boolean objectDetectedLeft = false;
     boolean detectProp = true;
     boolean objectDetectedRight = false;
@@ -236,6 +237,7 @@ public class AllQuadsFixed extends LinearOpMode {
                 startOfAutonomous = false;
             }
             //Detecting the prop on the spike mark
+
             if (detectProp) {
                 if (objectDetectedLeft&&quadrant==3||objectDetectedRight&&quadrant==2) {
                     //Position sets which April Tag to look for i.e. 1 for left if on the blue side, 3 is added if the robot is on the red side
@@ -264,8 +266,9 @@ public class AllQuadsFixed extends LinearOpMode {
                     pmmF.setDirection(Servo.Direction.REVERSE);
                     pmmF.setPosition(0);
                     driveForward(3.5,fwdPwr);
+
                     if (quadrant==3){
-                        strafeLeft(23,strafePwr);
+                            strafeLeft(23,strafePwr);
                     } else {
                         strafeRight(23,strafePwr);
                     }
