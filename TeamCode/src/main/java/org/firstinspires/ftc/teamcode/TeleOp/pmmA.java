@@ -1,13 +1,12 @@
-package org.firstinspires.ftc.teamcode.Archive.Autonomous;
+package org.firstinspires.ftc.teamcode.TeleOp;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp(name="pmmA", group="TeleOp")
-@Disabled
+//@Disabled
 public class pmmA extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
 

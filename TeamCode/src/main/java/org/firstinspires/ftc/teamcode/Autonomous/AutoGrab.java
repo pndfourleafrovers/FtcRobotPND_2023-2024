@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Archive.Autonomous;
+package org.firstinspires.ftc.teamcode.Autonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 //Figure out if the pmmfloor starts clasped or not. If it is not, you will need to start it at the beggining of the match
 
 @Autonomous(name="AutoGrab", group="Autonomous")
-@Disabled
+//@Disabled
 public class AutoGrab extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
 

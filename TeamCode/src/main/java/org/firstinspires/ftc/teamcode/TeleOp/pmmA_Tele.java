@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Archive.Teleop;
+package org.firstinspires.ftc.teamcode.TeleOp;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Disabled
+//@Disabled
 @TeleOp(name="pmmA_Tele", group="TeleOp")
 public class pmmA_Tele extends LinearOpMode {
 
@@ -117,9 +117,9 @@ public class pmmA_Tele extends LinearOpMode {
                         arm.setTargetPosition(TICKS_PER_DEGREE * -0);
                         arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                         break;
-                                }
-                         }
                     }
+                }
+            }
             if(gamepad2.x){
                 armMovement(7);
             }
@@ -138,8 +138,8 @@ public class pmmA_Tele extends LinearOpMode {
             else if (gamepad2.dpad_down) {
                 armMovement(0);
             }
-                }
-            }
+        }
+    }
 
     private void armMovement (int degree){
         while (Run = true) {
@@ -158,5 +158,4 @@ public class pmmA_Tele extends LinearOpMode {
         }
 
     }
-        }
-
+}

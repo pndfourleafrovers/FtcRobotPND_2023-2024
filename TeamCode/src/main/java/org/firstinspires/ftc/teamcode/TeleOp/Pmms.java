@@ -1,13 +1,12 @@
-package org.firstinspires.ftc.teamcode.Archive.Teleop;
+package org.firstinspires.ftc.teamcode.TeleOp;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp(name="Pmms", group="TeleOp")
-@Disabled
+//@Disabled
 public class Pmms extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
     private Servo Grabber;
@@ -56,6 +55,6 @@ public class Pmms extends LinearOpMode {
             telemetry.update();
         }
 
-        }
     }
+}
 

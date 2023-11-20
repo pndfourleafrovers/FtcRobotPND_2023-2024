@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.Autonomous.AprilTagFinder;
+import org.firstinspires.ftc.teamcode.Random.Mixed.AprilTagFinder;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
@@ -80,7 +80,6 @@ public class BlueTeleOp extends LinearOpMode {
         initHardware();
 
 
-
         // Wait for the game to start (driver presses PLAY)
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -94,16 +93,16 @@ public class BlueTeleOp extends LinearOpMode {
             double max;
 
             // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
-            double axial   = -gamepad1.left_stick_y;  // Note: pushing stick forward gives negative value
-            double lateral =  gamepad1.left_stick_x;
-            double yaw     =  gamepad1.right_stick_x;
+            double axial = -gamepad1.left_stick_y;  // Note: pushing stick forward gives negative value
+            double lateral = gamepad1.left_stick_x;
+            double yaw = gamepad1.right_stick_x;
 
             // Combine the joystick requests for each axis-motion to determine each wheel's power.
             // Set up a variable for each drive wheel to save the power level for telemetry.
-            double leftFrontPower  = axial + lateral + yaw;
+            double leftFrontPower = axial + lateral + yaw;
             double rightFrontPower = axial - lateral - yaw;
-            double leftBackPower   = axial - lateral + yaw;
-            double rightBackPower  = axial + lateral - yaw;
+            double leftBackPower = axial - lateral + yaw;
+            double rightBackPower = axial + lateral - yaw;
 
             // Normalize the values so no wheel power exceeds 100%
             // This ensures that the robot maintains the desired motion.
@@ -111,26 +110,34 @@ public class BlueTeleOp extends LinearOpMode {
             max = Math.max(max, Math.abs(leftBackPower));
             max = Math.max(max, Math.abs(rightBackPower));
 
-            if (gamepad1.right_bumper) {
-                if (!slowMode) {
-                    slowMode = true;
-                    powerMultiplier = 0.2;
+
+            if (max > 1.0) {
+                leftFrontPower /= max;
+                rightFrontPower /= max;
+                leftBackPower /= max;
+                rightBackPower /= max;
+
+                if (gamepad1.right_bumper) {
+                    if (!slowMode) {
+                        slowMode = true;
+                        powerMultiplier = 0.2;
+                    }
+                } else {
+                    if (slowMode) {
+                        slowMode = false;
+                        powerMultiplier = 1.0;
+                    }
+
                 }
-            } else {
-                if (slowMode) {
-                    slowMode = false;
-                    powerMultiplier = 1.0;
-                }
-            }
-            FrontLeft.setPower(leftFrontPower * powerMultiplier);
-            FrontRight.setPower(rightFrontPower * powerMultiplier);
-            RearLeft.setPower(leftBackPower * powerMultiplier);
-            RearRight.setPower(rightBackPower * powerMultiplier);
+                FrontLeft.setPower(leftFrontPower * powerMultiplier);
+                FrontRight.setPower(rightFrontPower * powerMultiplier);
+                RearLeft.setPower(leftBackPower * powerMultiplier);
+                RearRight.setPower(rightBackPower * powerMultiplier);
 
 
-            //Might have to add (subtract?) seven degrees to each, -7 for zero, to account for the 7 movement in the beginning.
-            //See if program works like this first
-            //Arm rotation
+                //Might have to add (subtract?) seven degrees to each, -7 for zero, to account for the 7 movement in the beginning.
+                //See if program works like this first
+                //Arm rotation
             /*
             double a = -gamepad1.left_stick_y;
             double l = gamepad1.left_stick_x;
@@ -139,124 +146,134 @@ public class BlueTeleOp extends LinearOpMode {
             basicMovement(a, l, y);
 
              */
-            if (gamepad2.right_bumper) {
-                armMovement(7);    //0
-            }
-            if (gamepad2.dpad_right) {
-                armMovement(207);    //200   207
-            }
-            if (gamepad2.dpad_down) {
-                armMovement(193);   //171     178
-            }
-            if (gamepad2.dpad_left) {
-                armMovement(178);  //143      150
-            }
-            if (gamepad2.dpad_up) {
-                armMovement(140);  //113       120
-            }
-            if (gamepad2.left_bumper) {
-                armMovement(0);   //-7          0
-            }
-            if (gamepad2.left_stick_button) {
-                armMovement(90);   //-7          0
-            }
+                if (gamepad2.right_bumper) {
+                    armMovement(7);    //0
+                }
+                if (gamepad2.dpad_right) {
+                    armMovement(207);    //200   207
+                }
+                if (gamepad2.dpad_down) {
+                    armMovement(193);   //171     178
+                }
+                if (gamepad2.dpad_left) {
+                    armMovement(178);  //143      150
+                }
+                if (gamepad2.dpad_up) {
+                    armMovement(140);  //113       120
+                }
+                if (gamepad2.left_bumper) {
+                    armMovement(0);   //-7          0
+                }
+                if (gamepad2.left_stick_button) {
+                    armMovement(90);   //-7          0
+                }
 
-            //Manipulates pmmF
-            if (gamepad2.y) {
-                pmmF(0.0);
-            }
-            if (gamepad2.x) {
-                pmmF(0.62);
-            }
-
-
-            //Manipulates pmmA
-            if (gamepad2.b) {
-                pmmA(0.0);
-            }
-            if (gamepad2.a) {
-                pmmA(0.55);
-            }
+                //Manipulates pmmF
+                if (gamepad2.y) {
+                    pmmF(0.0);
+                }
+                if (gamepad2.x) {
+                    pmmF(0.62);
+                }
 
 
-            //Makes robot drive toward apriltag
+                //Manipulates pmmA
+                if (gamepad2.b) {
+                    pmmA(0.0);
+                }
+                if (gamepad2.a) {
+                    pmmA(0.55);
+                }
 
+
+                //Makes robot drive toward apriltag
+
+            /*
+            if (gamepad1.x) {
+                approachTag(1);
+            } else if (gamepad1.y) {
+                approachTag(2);
+            } else if (gamepad1.b) {
+                approachTag(3);
+            }
+
+
+
+        }
+*/
+            }
+            // Show the elapsed game time and wheel power.
+            telemetry.addData("Status", "Run Time: " + runtime.toString());
+            //   telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
+            //    telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
+            telemetry.addData("Servo Position", pmmF.getPosition());
+            telemetry.update();
+        }
+    }
+
+
+
+        private void initHardware() {
+            // Initialize the hardware variables. Note that the strings used here as parameters
+            // to 'get' must match the names assigned during the robot configuration.
+            // step (using the FTC Robot Controller app on the phone).
+            FrontLeft = hardwareMap.get(DcMotor.class, "Left_front");
+            FrontRight = hardwareMap.get(DcMotor.class, "Right_front");
+            RearLeft = hardwareMap.get(DcMotor.class, "Left_rear");
+            RearRight = hardwareMap.get(DcMotor.class, "Right_rear");
+
+            // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
+            // When run, this OpMode should start both motors driving forward. So adjust these two lines based on your first test drive.
+            // Note: The settings here assume direct drive on left and right wheels.  Gear Reduction or 90 Deg drives may require direction flips
+            FrontLeft.setDirection(DcMotor.Direction.REVERSE);
+            RearLeft.setDirection(DcMotor.Direction.REVERSE);
+            FrontRight.setDirection(DcMotor.Direction.FORWARD);
+            RearRight.setDirection(DcMotor.Direction.FORWARD);
         }
 
 
-        // Show the elapsed game time and wheel power.
-        telemetry.addData("Status", "Run Time: " + runtime.toString());
-        //   telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
-        //    telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
-        telemetry.addData("Servo Position", pmmF.getPosition());
-        telemetry.update();
-    }
 
+        private int armMovement(int degree) {
+            while (Run = true) {
 
-
-
-    private void initHardware() {
-        // Initialize the hardware variables. Note that the strings used here as parameters
-        // to 'get' must match the names assigned during the robot configuration.
-        // step (using the FTC Robot Controller app on the phone).
-        FrontLeft = hardwareMap.get(DcMotor.class, "Left_front");
-        FrontRight = hardwareMap.get(DcMotor.class, "Right_front");
-        RearLeft = hardwareMap.get(DcMotor.class, "Left_rear");
-        RearRight = hardwareMap.get(DcMotor.class, "Right_rear");
-
-        // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
-        // When run, this OpMode should start both motors driving forward. So adjust these two lines based on your first test drive.
-        // Note: The settings here assume direct drive on left and right wheels.  Gear Reduction or 90 Deg drives may require direction flips
-        FrontLeft.setDirection(DcMotor.Direction.REVERSE);
-        RearLeft.setDirection(DcMotor.Direction.REVERSE);
-        FrontRight.setDirection(DcMotor.Direction.FORWARD);
-        RearRight.setDirection(DcMotor.Direction.FORWARD);
-    }
-
-
-
-    private int armMovement(int degree) {
-
-        while (Run = true) {
-
-            arm.setTargetPosition(TICKS_PER_DEGREE * (degree - currentDegree));
-            arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            arm.setPower(0.5);
-            //maybe try a sleep? Does it run during sleep? Because that would solve all our problems. Except Apriltags being weird.
-            if (gamepad2.right_stick_button) {
-                degree = currentDegree;
+                arm.setTargetPosition(TICKS_PER_DEGREE * (degree - currentDegree));
+                arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                arm.setPower(0.5);
+                //maybe try a sleep? Does it run during sleep? Because that would solve all our problems. Except Apriltags being weird.
+                if (gamepad2.right_stick_button) {
+                    degree = currentDegree;
+                    break;
+                }
                 break;
             }
-            break;
+            return currentDegree;
         }
-        return currentDegree;
+
+
+        private void armMovement2(int degrees) {
+            arm.setTargetPosition(TICKS_PER_DEGREE * degrees);
+            arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            arm.setPower(0.5);
+            sleep(2000);
+            pmmA.setDirection(Servo.Direction.FORWARD);
+            pmmA.setPosition(0.0);
+            sleep(10);
+            arm.setTargetPosition(TICKS_PER_DEGREE * -degrees);
+            arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            arm.setPower(0.5);
+            sleep(2000);
+        }
+
+        private void pmmF(double turnValF) {
+            pmmF.setDirection(Servo.Direction.REVERSE);
+            pmmF.setPosition(turnValF);
+            //  return turnValF;
+        }
+
+        private void pmmA(double turnValA) {
+            pmmA.setDirection(Servo.Direction.FORWARD);
+            pmmA.setPosition(turnValA);
+            //    return turnValA;
+        }
+
     }
-
-
-    private void armMovement2(int degrees) {
-        arm.setTargetPosition(TICKS_PER_DEGREE * degrees);
-        arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        arm.setPower(0.5);
-        sleep(2000);
-        pmmA.setDirection(Servo.Direction.FORWARD);
-        pmmA.setPosition(0.0);
-        sleep(10);
-        arm.setTargetPosition(TICKS_PER_DEGREE * -degrees);
-        arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        arm.setPower(0.5);
-        sleep(2000);
-    }
-
-    private void pmmF(double turnValF) {
-        pmmF.setDirection(Servo.Direction.REVERSE);
-        pmmF.setPosition(turnValF);
-        //  return turnValF;
-    }
-
-    private void pmmA(double turnValA) {
-        pmmA.setDirection(Servo.Direction.FORWARD);
-        pmmA.setPosition(turnValA);
-        //    return turnValA;
-    }
-
-}

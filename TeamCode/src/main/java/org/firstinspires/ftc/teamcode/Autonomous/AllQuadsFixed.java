@@ -21,7 +21,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
-
+import org.firstinspires.ftc.teamcode.Random.Mixed.AprilTagFinder;
 import java.util.concurrent.TimeUnit;
 
 @Autonomous(name="AllQuadsFixed", group="Autonomous")

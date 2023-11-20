@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
-import com.qualcomm.robotcore.hardware.TouchSensor;
+
 import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
@@ -18,15 +18,22 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainCon
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
+import org.firstinspires.ftc.teamcode.Random.Mixed.AprilTagFinder;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.concurrent.TimeUnit;
 
-@Autonomous(name="AllQuads", group="Autonomous")
+<<<<<<<< HEAD:TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Autonomous/AllQuadsFinal.java
+@Autonomous(name="AllQuadsFinal", group="Autonomous")
 //@Disabled
-public class AllQuadsIan extends LinearOpMode {
+public class AllQuadsFinal extends LinearOpMode {
+========
+@Autonomous(name="NewAllQuads", group="Autonomous")
+//@Disabled
+public class NewAllQuads extends LinearOpMode {
+>>>>>>>> origin/master:TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Autonomous/NewAllQuads.java
     final double DESIRED_DISTANCE = 13.5; //  this is how close the camera should get to the target (inches)
     //  Set the GAIN constants to control the relationship between the measured position error, and how much power is
     //  applied to the drive motors to correct the error.
@@ -98,13 +105,11 @@ public class AllQuadsIan extends LinearOpMode {
     ElapsedTime timer = new ElapsedTime();
     final double WAIT_TIME = 1.0;       // Time to wait in seconds
     int moveArmToPosition = 7;          // Position to move the arm to in degrees
-    private TouchSensor touchSensor;
+
     @Override
     public void runOpMode() {
         // Step 1: Initialization
         potentiometer = hardwareMap.get(AnalogInput.class, "potentiometer");
-// only implement this code if you have the touch sensor driving where to park
-//        touchSensor = hardwareMap.get(TouchSensor.class, "touch")
         int quadrant = getPotentiometerQuadrant();
         boolean targetFound = false;    // APRIL TAG: Set to true when an AprilTag target is detected
         double drive = 0;        // Desired forward power/speed (-1 to +1)
@@ -149,8 +154,6 @@ public class AllQuadsIan extends LinearOpMode {
                 } else if (DESIRED_TAG_ID==4 || DESIRED_TAG_ID ==1){
                     strafeLeft(2,strafePwr);
                 }
-                //sometimes the april tag code does not align properly, let the IMU do that for you
-                turnToHeading((quadrant==1||quadrant==2)?-90:90);
                 //Position the arm to drop the pixel
                 arm.setTargetPosition(TICKS_PER_DEGREE * 210);
                 arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -168,30 +171,10 @@ public class AllQuadsIan extends LinearOpMode {
             if (ENDGAME){
                 //Give the arm time to get back to the position just off of the floor
                 sleep(1000);
-                arm.setTargetPosition(TICKS_PER_DEGREE * 0);
-                arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                arm.setPower(0.5);
-                sleep(2000);
                 arm.setTargetPosition(TICKS_PER_DEGREE * 7);
                 arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                arm.setPower(0.5);
-// only implement this code if you have the touch sensor driving where to park
-// pressing the touch sensor goes to center
-// not pressing the touch sensor goes to the corners
-/*                if (touchSensor.isPressed()){ //Go to the center
-                    if (quadrant==1|| quadrant==2){
-                        strafeRight(distToStrafeAtPark[Position], strafePwr);
-                    } else {
-                        strafeLeft(distToStrafeAtPark[(Position==1)?3:(Position==3)?1:Position],strafePwr);
-                    }
-                } else {
-                    if (quadrant==1|| quadrant==2){
-                        strafeLeft(distToStrafeAtPark[(Position==1)?3:(Position==3)?1:Position],strafePwr);
-                    } else {
-                        strafeRight(distToStrafeAtPark[Position], strafePwr);
-                    }
-                }
-*/
+                arm.setPower(0.1);
+                sleep(2000);
                 //This is where to park if we are in quadrant 1 i.e. front of the blue then park in the middle
                 if (quadrant==1){
                     strafeRight(distToStrafeAtPark[Position], strafePwr);
@@ -204,13 +187,11 @@ public class AllQuadsIan extends LinearOpMode {
                 }
                 //final drive before parking in the backstage
                 driveForward(10,fwdPwr);
-                sleep(2000);
-                arm.setTargetPosition(TICKS_PER_DEGREE * 0);
-                arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                arm.setPower(0.5);
-                arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                sleep(5000);
+                //arm.setTargetPosition(TICKS_PER_DEGREE * 0);
+                //arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                //arm.setPower(0.1);
+                //arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                //arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 requestOpModeStop();
             }
             //THIS IS THE START OF AUTONOMOUS
@@ -243,7 +224,7 @@ public class AllQuadsIan extends LinearOpMode {
             //Detecting the prop on the spike mark
 
             if (detectProp) {
-                if (objectDetectedRight&&quadrant==3||objectDetectedLeft&&quadrant==2) {
+                if (objectDetectedLeft&&quadrant==3||objectDetectedRight&&quadrant==2) {
                     //Position sets which April Tag to look for i.e. 1 for left if on the blue side, 3 is added if the robot is on the red side
                     // In quadrant 2 we have to switch the position because the robot was turned and left is now near the back drop, in quadrant 2 left was at the truss
                     Position = (quadrant==3)?1:3;
@@ -259,7 +240,7 @@ public class AllQuadsIan extends LinearOpMode {
                     //April detections after this
                     findAprilTag = true;
                     detectProp = false;
-                } else if (objectDetectedLeft&&quadrant==3||objectDetectedRight&&quadrant==2) {
+                } else if (objectDetectedRight&&quadrant==3||objectDetectedLeft&&quadrant==2) {
                     //Position sets which April Tag to look for i.e. 3 for right if on the blue side, 3 is added if the robot is on the red side
                     // In quadrant 2 we have to switch the position because the robot was turned and left is now near the back drop, in quadrant 2 left was at the truss
                     Position = (quadrant==3)?3:1;//This also sets how far the robot strafes during parking
@@ -301,7 +282,7 @@ public class AllQuadsIan extends LinearOpMode {
                     //April detection after this
                     findAprilTag = true;
                     detectProp = false;
-                } else if (objectDetectedRight&&quadrant==4||objectDetectedLeft&&quadrant==1){
+                } else if (objectDetectedLeft&&quadrant==4||objectDetectedRight&&quadrant==1){
                     Position = (quadrant==4)?1:3;
                     turnToHeading(90*((quadrant==1)?-1:1));
                     driveBackward(4.5, bwdPwr);
@@ -321,10 +302,10 @@ public class AllQuadsIan extends LinearOpMode {
                     WATCHOUT = true;
                     if (WATCHOUT){
                         if(quadrant==4){
-                            strafeWithObstacleDetection(30, strafePwr, false); // false for strafing right
-                            } else {
-                                strafeWithObstacleDetection(30, strafePwr, true); // true for strafing left
-                            }
+                            strafeRightWithObstacleDetection(21, strafePwr, DETECTION_THRESHOLD2);
+                        } else {
+                            strafeLeftWithObstacleDetection(21, strafePwr, DETECTION_THRESHOLD2);
+                        }
                         WATCHOUT = false;
                     }
 
@@ -332,7 +313,7 @@ public class AllQuadsIan extends LinearOpMode {
                     findAprilTag = true;
                     detectProp = false;
 
-                } else if (objectDetectedLeft&&quadrant==4||objectDetectedRight&&quadrant==1) {
+                } else if (objectDetectedRight&&quadrant==4||objectDetectedLeft&&quadrant==1) {
                     Position = (quadrant==4)?3:1;
                     turnToHeading(-90*((quadrant==1)?-1:1));
                     driveBackward(3.5, bwdPwr);
@@ -349,10 +330,13 @@ public class AllQuadsIan extends LinearOpMode {
                     }
                     turnToHeading(90*((quadrant==1)?-1:1));
                     driveForward(72,1);
-                    if(quadrant==4){
-                        strafeRight(32,strafePwr);
-                    } else {
-                        strafeLeft(32,strafePwr);
+                    if (WATCHOUT){
+                        if(quadrant==4){
+                            strafeRightWithObstacleDetection(32, strafePwr, DETECTION_THRESHOLD2);
+                        } else {
+                            strafeLeftWithObstacleDetection(32, strafePwr, DETECTION_THRESHOLD2);
+                        }
+                        WATCHOUT = false;
                     }
                     //April detection after this
                     findAprilTag = true;
@@ -377,9 +361,9 @@ public class AllQuadsIan extends LinearOpMode {
                     driveForward(85,1);
                     if (WATCHOUT){
                         if(quadrant==4){
-                            strafeWithObstacleDetection(30, strafePwr, false); // false for strafing right
+                            strafeRightWithObstacleDetection(21, strafePwr, DETECTION_THRESHOLD2);
                         } else {
-                            strafeWithObstacleDetection(30, strafePwr, true); // true for strafing left
+                            strafeLeftWithObstacleDetection(21, strafePwr, DETECTION_THRESHOLD2);
                         }
                         WATCHOUT = false;
                     }
@@ -498,15 +482,13 @@ public class AllQuadsIan extends LinearOpMode {
         rightBackDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         // Apply power
+        leftFrontDrive.setPower(power);
+        rightFrontDrive.setPower(power);
+        leftBackDrive.setPower(power);
+        rightBackDrive.setPower(power);
 
         while (opModeIsActive() && (leftFrontDrive.isBusy() || rightFrontDrive.isBusy() || leftBackDrive.isBusy() || rightBackDrive.isBusy())) {
             // Optionally provide telemetry updates
-            drive = Range.clip((leftBackDrive.getTargetPosition()-leftFrontDrive.getCurrentPosition()) * SPEED_GAIN+0.5 * (distance > 0 ? 1 : -1), -0.5 - MAX_AUTO_SPEED, 0.5+MAX_AUTO_SPEED);
-            leftFrontDrive.setPower(drive);
-            rightFrontDrive.setPower(drive);
-            leftBackDrive.setPower(drive);
-            rightBackDrive.setPower(drive);
-
             telemetry.addData("LeftFrontDrive Position", leftFrontDrive.getCurrentPosition());
             telemetry.addData("RightFrontDrive Position", rightFrontDrive.getCurrentPosition());
             telemetry.addData("LeftBackDrive Position", leftBackDrive.getCurrentPosition());
@@ -683,12 +665,6 @@ public class AllQuadsIan extends LinearOpMode {
         // Wait for the motors to finish
         while (opModeIsActive() && (leftFrontDrive.isBusy() || rightFrontDrive.isBusy() || leftBackDrive.isBusy() || rightBackDrive.isBusy())) {
             // Optionally provide telemetry updates
-            strafePwr = Range.clip((leftBackDrive.getTargetPosition()-leftFrontDrive.getCurrentPosition()) * SPEED_GAIN+0.2, -0.5 - MAX_AUTO_SPEED, 0.5+MAX_AUTO_SPEED);
-            leftFrontDrive.setPower(strafePwr);
-            rightFrontDrive.setPower(strafePwr);
-            leftBackDrive.setPower(strafePwr);
-            rightBackDrive.setPower(strafePwr);
-
             telemetry.addData("LeftFrontDrive Position", leftFrontDrive.getCurrentPosition());
             telemetry.addData("RightFrontDrive Position", rightFrontDrive.getCurrentPosition());
             telemetry.addData("LeftBackDrive Position", leftBackDrive.getCurrentPosition());
@@ -735,11 +711,6 @@ public class AllQuadsIan extends LinearOpMode {
         // Wait for the motors to finish
         while (opModeIsActive() && (leftFrontDrive.isBusy() || rightFrontDrive.isBusy() || leftBackDrive.isBusy() || rightBackDrive.isBusy())) {
             // Optionally provide telemetry updates
-            strafePwr = Range.clip((leftBackDrive.getTargetPosition()-leftFrontDrive.getCurrentPosition()) * SPEED_GAIN-0.2, -0.5 - MAX_AUTO_SPEED, 0.5+MAX_AUTO_SPEED);
-            leftFrontDrive.setPower(strafePwr);
-            rightFrontDrive.setPower(strafePwr);
-            leftBackDrive.setPower(strafePwr);
-            rightBackDrive.setPower(strafePwr);
             telemetry.addData("LeftFrontDrive Position", leftFrontDrive.getCurrentPosition());
             telemetry.addData("RightFrontDrive Position", rightFrontDrive.getCurrentPosition());
             telemetry.addData("LeftBackDrive Position", leftBackDrive.getCurrentPosition());
@@ -759,25 +730,141 @@ public class AllQuadsIan extends LinearOpMode {
         leftBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
-    public void strafeWithObstacleDetection(double distance, double power, boolean strafeLeft) {
-        while (remainingDistance > 0) {
-            if ((strafeLeft ? sensorLeft : sensorRight).getDistance(DistanceUnit.CM) < DETECTION_THRESHOLD2) {
-                // If an obstacle is detected, stop and wait
-                sleep(1000);
-            } else {
-                // No obstacle detected, proceed to strafe
-                double distanceToStrafeNow = Math.min(remainingDistance, 5);
-                if (strafeLeft) {
-                    strafeLeft(distanceToStrafeNow, strafePwr);
-                } else {
-                    strafeRight(distanceToStrafeNow, strafePwr);
+    public void strafeRightWithObstacleDetection(double distance, double power, double detectionThreshold) {
+        int ticksToMove;
+        double ticksPerInch = (537.7 / ((96 / 25.4) * Math.PI));
+        ticksToMove = (int) (distance * ticksPerInch);
+
+        // Set target positions for strafing right
+        leftFrontDrive.setTargetPosition(leftFrontDrive.getCurrentPosition() + ticksToMove);
+        rightFrontDrive.setTargetPosition(rightFrontDrive.getCurrentPosition() - ticksToMove);
+        leftBackDrive.setTargetPosition(leftBackDrive.getCurrentPosition() - ticksToMove);
+        rightBackDrive.setTargetPosition(rightBackDrive.getCurrentPosition() + ticksToMove);
+
+        // Set the mode to RUN_TO_POSITION
+        leftFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        leftBackDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightBackDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        // Apply power
+        leftFrontDrive.setPower(power);
+        rightFrontDrive.setPower(power);
+        leftBackDrive.setPower(power);
+        rightBackDrive.setPower(power);
+
+        // Wait for the motors to finish or stop if an obstacle is detected
+        while (opModeIsActive() && (leftFrontDrive.isBusy() || rightFrontDrive.isBusy() || leftBackDrive.isBusy() || rightBackDrive.isBusy())) {
+            // Check for obstacle
+            if (sensorLeft.getDistance(DistanceUnit.CM) < DETECTION_THRESHOLD2) {
+                // Obstacle detected, stop all motors
+                leftFrontDrive.setPower(0);
+                rightFrontDrive.setPower(0);
+                leftBackDrive.setPower(0);
+                rightBackDrive.setPower(0);
+
+                // Wait until the obstacle is cleared
+                while (sensorLeft.getDistance(DistanceUnit.CM) < DETECTION_THRESHOLD2) {
+                    // Optionally add a sleep here to avoid a busy loop
+                    sleep(100);
                 }
 
-                // Update the remaining distance
-                remainingDistance -= distanceToStrafeNow;
+                // Once the obstacle is cleared, resume movement
+                leftFrontDrive.setPower(power);
+                rightFrontDrive.setPower(power);
+                leftBackDrive.setPower(power);
+                rightBackDrive.setPower(power);
             }
+
+            // Optionally provide telemetry updates
+            telemetry.addData("LeftFrontDrive Position", leftFrontDrive.getCurrentPosition());
+            telemetry.addData("RightFrontDrive Position", rightFrontDrive.getCurrentPosition());
+            telemetry.addData("LeftBackDrive Position", leftBackDrive.getCurrentPosition());
+            telemetry.addData("RightBackDrive Position", rightBackDrive.getCurrentPosition());
+            telemetry.update();
         }
+
+        // Stop all the motors
+        leftFrontDrive.setPower(0);
+        rightFrontDrive.setPower(0);
+        leftBackDrive.setPower(0);
+        rightBackDrive.setPower(0);
+
+        // Reset the motor modes back to RUN_USING_ENCODER
+        leftFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
+
+
+    public void strafeLeftWithObstacleDetection(double distance, double power, double detectionThreshold) {
+        int ticksToMove;
+        double ticksPerInch = (537.7 / ((96 / 25.4) * Math.PI));
+        ticksToMove = (int) (distance * ticksPerInch);
+
+        // Set target positions for strafing left
+        leftFrontDrive.setTargetPosition(leftFrontDrive.getCurrentPosition() - ticksToMove);
+        rightFrontDrive.setTargetPosition(rightFrontDrive.getCurrentPosition() + ticksToMove);
+        leftBackDrive.setTargetPosition(leftBackDrive.getCurrentPosition() + ticksToMove);
+        rightBackDrive.setTargetPosition(rightBackDrive.getCurrentPosition() - ticksToMove);
+
+        // Set the mode to RUN_TO_POSITION
+        leftFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        leftBackDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightBackDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        // Apply power
+        leftFrontDrive.setPower(power);
+        rightFrontDrive.setPower(power);
+        leftBackDrive.setPower(power);
+        rightBackDrive.setPower(power);
+
+        // Wait for the motors to finish or stop if an obstacle is detected
+        while (opModeIsActive() && (leftFrontDrive.isBusy() || rightFrontDrive.isBusy() || leftBackDrive.isBusy() || rightBackDrive.isBusy())) {
+            // Check for obstacle
+            if (sensorRight.getDistance(DistanceUnit.CM) < DETECTION_THRESHOLD2) {
+                // Obstacle detected, stop all motors
+                leftFrontDrive.setPower(0);
+                rightFrontDrive.setPower(0);
+                leftBackDrive.setPower(0);
+                rightBackDrive.setPower(0);
+
+                // Wait until the obstacle is cleared
+                while (sensorRight.getDistance(DistanceUnit.CM) < DETECTION_THRESHOLD2) {
+                    // Optionally add a sleep here to avoid a busy loop
+                    sleep(100);
+                }
+
+                // Once the obstacle is cleared, resume movement
+                leftFrontDrive.setPower(power);
+                rightFrontDrive.setPower(power);
+                leftBackDrive.setPower(power);
+                rightBackDrive.setPower(power);
+            }
+
+            // Optionally provide telemetry updates
+            telemetry.addData("LeftFrontDrive Position", leftFrontDrive.getCurrentPosition());
+            telemetry.addData("RightFrontDrive Position", rightFrontDrive.getCurrentPosition());
+            telemetry.addData("LeftBackDrive Position", leftBackDrive.getCurrentPosition());
+            telemetry.addData("RightBackDrive Position", rightBackDrive.getCurrentPosition());
+            telemetry.update();
+        }
+
+        // Stop all the motors
+        leftFrontDrive.setPower(0);
+        rightFrontDrive.setPower(0);
+        leftBackDrive.setPower(0);
+        rightBackDrive.setPower(0);
+
+        // Reset the motor modes back to RUN_USING_ENCODER
+        leftFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
     private void controlArm(int desiredPosition) {
         switch (state) {
             case READY_TO_MOVE:
