@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 //make the methods into objects so you can call them
 //@Disabled
 @Autonomous(name="GyroObjects", group="Autonomous")
+@Disabled
 public class Odometry extends LinearOpMode{
 
         /* Declare OpMode members. */
