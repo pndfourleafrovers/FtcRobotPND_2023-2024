@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Autonomous;
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -18,15 +19,17 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainCon
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
+import org.firstinspires.ftc.teamcode.Components.AprilTagFinder;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
-import org.firstinspires.ftc.teamcode.Random.Mixed.AprilTagFinder;
+
 import java.util.concurrent.TimeUnit;
 
-@Autonomous(name="AllQuadsFixed", group="Autonomous")
-//@Disabled
-public class AllQuadsFixed extends LinearOpMode {
+@Autonomous(name="Meet#1 Winner", group="Autonomous")
+@Disabled //Don't want this showing up on the driver hub
+//This was the fixed Autonomous code that won meet 1 it was called AllQuadsFixed. Keeping here as backup
+public class Meet1Auto extends LinearOpMode {
     final double DESIRED_DISTANCE = 13.5; //  this is how close the camera should get to the target (inches)
     //  Set the GAIN constants to control the relationship between the measured position error, and how much power is
     //  applied to the drive motors to correct the error.
@@ -268,7 +271,7 @@ public class AllQuadsFixed extends LinearOpMode {
                     driveForward(3.5,fwdPwr);
 
                     if (quadrant==3){
-                            strafeLeft(23,strafePwr);
+                        strafeLeft(23,strafePwr);
                     } else {
                         strafeRight(23,strafePwr);
                     }

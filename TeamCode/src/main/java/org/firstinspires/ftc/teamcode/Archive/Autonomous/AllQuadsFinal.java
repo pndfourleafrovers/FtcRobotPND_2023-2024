@@ -1,7 +1,8 @@
-package org.firstinspires.ftc.teamcode.Autonomous;
+package org.firstinspires.ftc.teamcode.Archive.Autonomous;
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -25,15 +26,14 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.concurrent.TimeUnit;
 
-<<<<<<<< HEAD:TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Autonomous/AllQuadsFinal.java
+
 @Autonomous(name="AllQuadsFinal", group="Autonomous")
-//@Disabled
+@Disabled
 public class AllQuadsFinal extends LinearOpMode {
-========
 @Autonomous(name="NewAllQuads", group="Autonomous")
-//@Disabled
+@Disabled
 public class NewAllQuads extends LinearOpMode {
->>>>>>>> origin/master:TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Autonomous/NewAllQuads.java
+
     final double DESIRED_DISTANCE = 13.5; //  this is how close the camera should get to the target (inches)
     //  Set the GAIN constants to control the relationship between the measured position error, and how much power is
     //  applied to the drive motors to correct the error.
@@ -94,15 +94,7 @@ public class NewAllQuads extends LinearOpMode {
     //This part is to create a state machine that keeps track of the state of the robot and the time at which actions are taken.
 
     DcMotor arm;
-
-    enum State {
-        MOVING,
-        WAITING,
-        READY_TO_MOVE
-    }
-
-    State state = State.READY_TO_MOVE;
-    ElapsedTime timer = new ElapsedTime();
+      ElapsedTime timer = new ElapsedTime();
     final double WAIT_TIME = 1.0;       // Time to wait in seconds
     int moveArmToPosition = 7;          // Position to move the arm to in degrees
 
